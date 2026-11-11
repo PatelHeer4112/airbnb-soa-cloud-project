@@ -1,0 +1,151 @@
+/**
+ * Sample listings for local development and demos.
+ * Images use picsum.photos placeholder URLs (free, no API key).
+ */
+const img = (seed) => [
+  `https://picsum.photos/seed/${seed}-1/800/600`,
+  `https://picsum.photos/seed/${seed}-2/800/600`,
+];
+
+module.exports = [
+  {
+    title: 'Bright Shoreditch Loft near Brick Lane',
+    description: 'Open-plan loft with exposed brick, fast Wi-Fi and a short walk to markets, cafes and the Overground.',
+    propertyType: 'Loft', location: 'Shoreditch', city: 'London', state: 'England', country: 'United Kingdom',
+    pricePerNight: 145, maxGuests: 2, bedrooms: 1, bathrooms: 1, rating: 4.7,
+    amenities: ['Wi-Fi', 'Kitchen', 'Washer', 'Heating', 'Workspace'], imageUrls: img('shoreditch-loft'),
+  },
+  {
+    title: 'Family House with Garden in Greenwich',
+    description: 'Three-bedroom Victorian house with a private garden, close to Greenwich Park and the DLR.',
+    propertyType: 'House', location: 'Greenwich', city: 'London', state: 'England', country: 'United Kingdom',
+    pricePerNight: 260, maxGuests: 6, bedrooms: 3, bathrooms: 2, rating: 4.8,
+    amenities: ['Wi-Fi', 'Kitchen', 'Garden', 'Washer', 'Free parking', 'Heating'], imageUrls: img('greenwich-house'),
+  },
+  {
+    title: 'Compact Studio by King\'s Cross',
+    description: 'Smart studio ideal for solo travellers, two minutes from King\'s Cross St Pancras.',
+    propertyType: 'Studio', location: 'King\'s Cross', city: 'London', state: 'England', country: 'United Kingdom',
+    pricePerNight: 95, maxGuests: 1, bedrooms: 0, bathrooms: 1, rating: 4.4,
+    amenities: ['Wi-Fi', 'Heating', 'Workspace'], imageUrls: img('kings-cross-studio'),
+  },
+  {
+    title: 'Old Town Apartment with Castle Views',
+    description: 'Classic tenement flat on the Royal Mile with views towards Edinburgh Castle.',
+    propertyType: 'Apartment', location: 'Old Town', city: 'Edinburgh', state: 'Scotland', country: 'United Kingdom',
+    pricePerNight: 130, maxGuests: 4, bedrooms: 2, bathrooms: 1, rating: 4.9,
+    amenities: ['Wi-Fi', 'Kitchen', 'Heating', 'Washer'], imageUrls: img('edinburgh-old-town'),
+  },
+  {
+    title: 'Cosy Highland Cabin by the Loch',
+    description: 'Timber cabin with wood burner and loch views. Perfect for walkers and stargazers.',
+    propertyType: 'Cabin', location: 'Loch Ness', city: 'Inverness', state: 'Scotland', country: 'United Kingdom',
+    pricePerNight: 110, maxGuests: 3, bedrooms: 1, bathrooms: 1, rating: 4.6,
+    amenities: ['Wood burner', 'Free parking', 'Kitchen', 'Lake view'], imageUrls: img('loch-cabin'),
+  },
+  {
+    title: 'Northern Quarter Apartment in Manchester',
+    description: 'Stylish apartment above independent shops, walking distance to Piccadilly station.',
+    propertyType: 'Apartment', location: 'Northern Quarter', city: 'Manchester', state: 'England', country: 'United Kingdom',
+    pricePerNight: 88, maxGuests: 3, bedrooms: 1, bathrooms: 1, rating: 4.3,
+    amenities: ['Wi-Fi', 'Kitchen', 'Heating', 'Elevator'], imageUrls: img('manchester-nq'),
+  },
+  {
+    title: 'Lake District Stone Cottage',
+    description: 'Traditional stone cottage in Ambleside with a log fire and fell views.',
+    propertyType: 'Cottage', location: 'Ambleside', city: 'Ambleside', state: 'England', country: 'United Kingdom',
+    pricePerNight: 155, maxGuests: 5, bedrooms: 2, bathrooms: 1, rating: 4.9,
+    amenities: ['Fireplace', 'Free parking', 'Kitchen', 'Pet friendly', 'Wi-Fi'], imageUrls: img('lake-cottage'),
+  },
+  {
+    title: 'Montmartre Apartment near Sacre-Coeur',
+    description: 'Charming top-floor apartment on a quiet Montmartre street with a small balcony.',
+    propertyType: 'Apartment', location: 'Montmartre', city: 'Paris', state: 'Ile-de-France', country: 'France',
+    pricePerNight: 175, maxGuests: 3, bedrooms: 1, bathrooms: 1, rating: 4.7,
+    amenities: ['Wi-Fi', 'Kitchen', 'Balcony', 'Heating'], imageUrls: img('montmartre'),
+  },
+  {
+    title: 'Le Marais Designer Loft',
+    description: 'Spacious loft in the heart of Le Marais, close to museums, galleries and bistros.',
+    propertyType: 'Loft', location: 'Le Marais', city: 'Paris', state: 'Ile-de-France', country: 'France',
+    pricePerNight: 240, maxGuests: 4, bedrooms: 2, bathrooms: 2, rating: 4.8,
+    amenities: ['Wi-Fi', 'Kitchen', 'Air conditioning', 'Washer', 'Elevator'], imageUrls: img('marais-loft'),
+  },
+  {
+    title: 'Gothic Quarter Flat with Terrace',
+    description: 'Renovated flat with a private roof terrace in Barcelona\'s Gothic Quarter.',
+    propertyType: 'Apartment', location: 'Gothic Quarter', city: 'Barcelona', state: 'Catalonia', country: 'Spain',
+    pricePerNight: 150, maxGuests: 4, bedrooms: 2, bathrooms: 1, rating: 4.6,
+    amenities: ['Wi-Fi', 'Air conditioning', 'Terrace', 'Kitchen'], imageUrls: img('gothic-quarter'),
+  },
+  {
+    title: 'Beachfront Villa with Pool in Sitges',
+    description: 'Large villa a few steps from the beach with a private pool, ideal for groups.',
+    propertyType: 'Villa', location: 'Sitges', city: 'Barcelona', state: 'Catalonia', country: 'Spain',
+    pricePerNight: 420, maxGuests: 10, bedrooms: 5, bathrooms: 4, rating: 4.9,
+    amenities: ['Pool', 'Wi-Fi', 'Air conditioning', 'Free parking', 'Kitchen', 'Beachfront'], imageUrls: img('sitges-villa'),
+  },
+  {
+    title: 'Canal House Room in Jordaan',
+    description: 'Private guesthouse room in a 17th-century canal house with breakfast available.',
+    propertyType: 'Guesthouse', location: 'Jordaan', city: 'Amsterdam', state: 'North Holland', country: 'Netherlands',
+    pricePerNight: 125, maxGuests: 2, bedrooms: 1, bathrooms: 1, rating: 4.5,
+    amenities: ['Wi-Fi', 'Breakfast', 'Heating'], imageUrls: img('jordaan'),
+  },
+  {
+    title: 'Trastevere Apartment near the River',
+    description: 'Colourful apartment in lively Trastevere, minutes from the Tiber and Vatican.',
+    propertyType: 'Apartment', location: 'Trastevere', city: 'Rome', state: 'Lazio', country: 'Italy',
+    pricePerNight: 135, maxGuests: 4, bedrooms: 2, bathrooms: 1, rating: 4.6,
+    amenities: ['Wi-Fi', 'Air conditioning', 'Kitchen'], imageUrls: img('trastevere'),
+  },
+  {
+    title: 'Alfama Studio with River View',
+    description: 'Sunny studio overlooking the Tagus river in Lisbon\'s historic Alfama district.',
+    propertyType: 'Studio', location: 'Alfama', city: 'Lisbon', state: 'Lisbon', country: 'Portugal',
+    pricePerNight: 80, maxGuests: 2, bedrooms: 0, bathrooms: 1, rating: 4.5,
+    amenities: ['Wi-Fi', 'Kitchen', 'River view'], imageUrls: img('alfama'),
+  },
+  {
+    title: 'Beach Villa in North Goa',
+    description: 'Portuguese-style villa with a pool, ten minutes from Anjuna and Vagator beaches.',
+    propertyType: 'Villa', location: 'Anjuna', city: 'Goa', state: 'Goa', country: 'India',
+    pricePerNight: 190, maxGuests: 8, bedrooms: 4, bathrooms: 3, rating: 4.7,
+    amenities: ['Pool', 'Wi-Fi', 'Air conditioning', 'Free parking', 'Kitchen'], imageUrls: img('goa-villa'),
+  },
+  {
+    title: 'Sea-facing Apartment in Bandra',
+    description: 'Modern apartment with sea views on Bandra\'s Bandstand promenade in Mumbai.',
+    propertyType: 'Apartment', location: 'Bandra West', city: 'Mumbai', state: 'Maharashtra', country: 'India',
+    pricePerNight: 120, maxGuests: 4, bedrooms: 2, bathrooms: 2, rating: 4.4,
+    amenities: ['Wi-Fi', 'Air conditioning', 'Kitchen', 'Elevator'], imageUrls: img('bandra'),
+  },
+  {
+    title: 'Heritage Haveli Guesthouse in Jaipur',
+    description: 'Rooms in a restored haveli inside the Pink City, with rooftop breakfast.',
+    propertyType: 'Guesthouse', location: 'Pink City', city: 'Jaipur', state: 'Rajasthan', country: 'India',
+    pricePerNight: 60, maxGuests: 3, bedrooms: 1, bathrooms: 1, rating: 4.6,
+    amenities: ['Wi-Fi', 'Breakfast', 'Air conditioning', 'Rooftop'], imageUrls: img('jaipur-haveli'),
+  },
+  {
+    title: 'Brooklyn Brownstone Apartment',
+    description: 'Garden-level apartment in a classic Brooklyn brownstone near Prospect Park.',
+    propertyType: 'Apartment', location: 'Park Slope', city: 'New York', state: 'New York', country: 'United States',
+    pricePerNight: 210, maxGuests: 4, bedrooms: 2, bathrooms: 1, rating: 4.7,
+    amenities: ['Wi-Fi', 'Kitchen', 'Heating', 'Washer', 'Garden'], imageUrls: img('brooklyn'),
+  },
+  {
+    title: 'Mountain Cabin in Banff',
+    description: 'Log cabin with hot tub and Rocky Mountain views, close to ski areas.',
+    propertyType: 'Cabin', location: 'Banff Townsite', city: 'Banff', state: 'Alberta', country: 'Canada',
+    pricePerNight: 230, maxGuests: 6, bedrooms: 3, bathrooms: 2, rating: 4.9,
+    amenities: ['Hot tub', 'Fireplace', 'Free parking', 'Kitchen', 'Wi-Fi'], imageUrls: img('banff-cabin'),
+  },
+  {
+    title: 'Bondi Beach House',
+    description: 'Airy house two streets from Bondi Beach with an outdoor shower and barbecue.',
+    propertyType: 'House', location: 'Bondi', city: 'Sydney', state: 'New South Wales', country: 'Australia',
+    pricePerNight: 280, maxGuests: 6, bedrooms: 3, bathrooms: 2, rating: 4.8,
+    amenities: ['Wi-Fi', 'Kitchen', 'BBQ', 'Air conditioning', 'Beachfront'], imageUrls: img('bondi-house'),
+  },
+];
