@@ -1,0 +1,100 @@
+{
+  "info": {
+    "name": "Airbnb SOA Backend",
+    "description": "All backend endpoints. Run `npm run seed`, then set listingId (from GET /api/listings) and bookingId (from Create booking).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "listingId", "value": "PASTE_LISTING_ID" },
+    { "key": "bookingId", "value": "PASTE_BOOKING_ID" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Listing Service",
+      "item": [
+        { "name": "Get all listings", "request": { "method": "GET", "url": "{{baseUrl}}/api/listings?page=1&limit=10" } },
+        { "name": "Get listing by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/listings/{{listingId}}" } },
+        {
+          "name": "Create listing",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/listings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Riverside Flat\",\n  \"description\": \"Two-bed flat by the Thames\",\n  \"propertyType\": \"Apartment\",\n  \"location\": \"Southbank\",\n  \"city\": \"London\",\n  \"state\": \"England\",\n  \"country\": \"United Kingdom\",\n  \"pricePerNight\": 180,\n  \"maxGuests\": 4,\n  \"bedrooms\": 2,\n  \"bathrooms\": 1,\n  \"amenities\": [\"Wi-Fi\", \"Kitchen\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search Service",
+      "item": [
+        { "name": "Search by city, price and guests", "request": { "method": "GET", "url": "{{baseUrl}}/api/search?city=London&minPrice=50&maxPrice=200&guests=2" } },
+        { "name": "Search by property type, sorted by price", "request": { "method": "GET", "url": "{{baseUrl}}/api/search?propertyType=Villa&sort=price_asc" } },
+        { "name": "Search available on dates", "request": { "method": "GET", "url": "{{baseUrl}}/api/search?city=London&checkIn=2026-12-20&checkOut=2026-12-23" } },
+        { "name": "Search with no results", "request": { "method": "GET", "url": "{{baseUrl}}/api/search?city=Atlantis" } }
+      ]
+    },
+    {
+      "name": "Availability Service",
+      "item": [
+        { "name": "Check availability", "request": { "method": "GET", "url": "{{baseUrl}}/api/availability?listingId={{listingId}}&checkIn=2026-12-20&checkOut=2026-12-23" } },
+        { "name": "Active booked ranges", "request": { "method": "GET", "url": "{{baseUrl}}/api/availability/{{listingId}}/bookings" } }
+      ]
+    },
+    {
+      "name": "Booking Service",
+      "item": [
+        {
+          "name": "Create booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('bookingId', pm.response.json().data._id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/bookings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listingId\": \"{{listingId}}\",\n  \"guestName\": \"Priya Shah\",\n  \"guestEmail\": \"priya@example.com\",\n  \"numberOfGuests\": 2,\n  \"checkInDate\": \"2026-12-22\",\n  \"checkOutDate\": \"2026-12-26\"\n}"
+            }
+          }
+        },
+        { "name": "Get booking", "request": { "method": "GET", "url": "{{baseUrl}}/api/bookings/{{bookingId}}" } },
+        {
+          "name": "Confirm booking",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/status",
+            "body": { "mode": "raw", "raw": "{ \"bookingStatus\": \"Confirmed\" }" }
+          }
+        },
+        {
+          "name": "Cancel booking",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/status",
+            "body": { "mode": "raw", "raw": "{ \"bookingStatus\": \"Cancelled\" }" }
+          }
+        }
+      ]
+    }
+  ]
+}
