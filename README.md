@@ -9,7 +9,7 @@ and behaviour under normal and peak (holiday) traffic.
 | Part | Owner | Status | Folder |
 |---|---|---|---|
 | Backend services, database, API, tests, backend report | Member 1 | Complete (local) | [`backend/`](backend/) |
-| Frontend UI (search, listing details, booking forms) | Member 2 | Not started | – |
+| Frontend UI (search, listing details, booking forms) | Member 2 | Implemented; see frontend validation notes | [`frontend/`](frontend/) |
 | AWS deployment, load testing, cost monitoring | Member 3 | Not started | – |
 
 ## Architecture
@@ -48,3 +48,16 @@ See [backend/README.md](backend/README.md) for full setup and the documentation 
 
 Development and testing run entirely on local machines. No cloud resources are created as part of backend
 development. See [backend/docs/DEPLOYMENT_GUIDE.md](backend/docs/DEPLOYMENT_GUIDE.md) for deployment notes and cost warnings.
+
+## Frontend (Member 2)
+
+The responsive frontend supports search, filters, listing details, availability checks, booking requests, reference lookup and cancellation. See [frontend/README.md](frontend/README.md) for setup, checks, limitations and static deployment instructions.
+
+```powershell
+cd frontend
+npm.cmd ci
+Copy-Item .env.example .env
+npm.cmd run dev  # http://localhost:5173; start backend and MongoDB separately
+```
+
+Frontend work is based on `feature/member1-backend` and developed on `feature/member2-frontend`.

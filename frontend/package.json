@@ -1,0 +1,1 @@
+{"name":"airbnb-soa-frontend","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"vite --port 5173 --strictPort","build":"vite build","preview":"vite preview --port 5173 --strictPort","test":"node --test tests/*.test.js"},"devDependencies":{"vite":"^6.1.0","@playwright/test":"^1.51.0"},"engines":{"node":">=20"}}
