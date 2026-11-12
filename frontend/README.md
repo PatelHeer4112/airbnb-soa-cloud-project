@@ -1,10 +1,10 @@
 # Frontend — Member 2
 
-Responsive TravelTrove-inspired accommodation UI, built with JavaScript, CSS, and Vite. Uses the existing backend APIs; no mock bookings or fallback listing data are shown in the application.
+Responsive Airbnb accommodation UI, built with JavaScript, CSS, and Vite. Uses the existing backend APIs; no mock bookings or fallback listing data are shown in the application.
 
 ## Run locally
 
-Requires Node.js 20.19+ or 22.12+. Start MongoDB and follow `../backend/README.md` to install, seed, and start the API on port 5000. In a second terminal:
+Requires Node.js 20.19+ or 22.12+. The backend is maintained separately on [feature/member1-backend](https://github.com/PatelHeer4112/airbnb-soa-cloud-project/tree/feature/member1-backend). Start MongoDB and follow that branch's backend/README.md in a separate checkout to install, seed, and start the API on port 5000. This frontend branch intentionally contains no backend source. In a second terminal:
 
 ```powershell
 cd frontend

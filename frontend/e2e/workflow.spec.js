@@ -68,7 +68,7 @@ test('booking conflict keeps guest input and explains the failure', async ({page
   await expect(page.getByRole('button',{name:'Request to book'})).toBeEnabled();
 });
 
-test('TravelTrove navigation and destination cards work on mobile', async ({page}) => {
+test('Airbnb navigation and destination cards work on mobile', async ({page}) => {
   await page.setViewportSize({width:390,height:844});
   await page.goto('/');
   await page.getByRole('button',{name:'Open navigation'}).click();
@@ -91,7 +91,7 @@ test('home, listing and booking layouts fit narrow, tablet and desktop screens',
       await page.goto(path);
       await expect(page.getByRole('heading',{level:1})).toBeVisible();
       expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth),`${path} at ${width}px`).toBe(true);
-      if (path === '/') await page.screenshot({path:`test-results/traveltrove-home-${width}.png`,fullPage:true});
+      if (path === '/') await page.screenshot({path:`test-results/airbnb-home-${width}.png`,fullPage:true});
     }
   }
 });
