@@ -46,6 +46,20 @@ npx.cmd playwright test
 
 Set `VITE_API_URL` to the backend's public HTTPS origin **before** building (no `/api` suffix). This is a public build-time value, never a secret. Run `npm ci` and `npm run build` in `frontend/`, then host `frontend/dist/` using your agreed static hosting setup. Add the frontend's exact HTTPS origin to the backend `CORS_ORIGIN` and restart the backend. Verify search, detail, availability, a booking and cancellation against the deployed API. No AWS resources are created by this branch.
 
+## Member 1 API compatibility check
+
+Fetched `feature/member1-backend` on 12 November 2026 and checked commit `512b4a840f266efe031ed6397241c17eb2cb410e` in a separate Git worktree. All 12 HTTP contract checks passed using this frontend's API client against the backend's real Express app, routes, request validators, booking response formatter, error middleware, and CORS settings. No frontend API changes were required.
+
+Covered search filters and pagination, listing details, reserved ranges, availability, booking creation and reference lookup, cancellation, validation errors, date boundaries, conflict handling, allowed frontend origin, and POST/PATCH preflight requests. Database-facing service operations were stubbed: these results verify the HTTP contract, not MongoDB persistence, concurrent reservations, or deployed integration.
+
+To repeat against a separate backend checkout, install that backend's dependencies with `npm.cmd ci`, then run from `frontend/`:
+
+```powershell
+node scripts/check-backend-contract.mjs C:\path\to\separate-checkout\backend
+```
+
+The check starts a temporary server on a free local port and closes it afterward. It does not connect to, seed, or modify MongoDB. Backend source stays out of this frontend branch. For browser use, start Member 1's real backend with MongoDB and set `VITE_API_URL` to its origin; the backend's default CORS configuration already permits `http://localhost:5173`.
+
 ## Limitations
 
 The backend currently has no authentication, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded property photos are placeholders; the homepage bundles the original TravelTrove photography locally and typography uses Google Fonts with local fallback fonts.
