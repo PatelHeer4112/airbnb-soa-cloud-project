@@ -1,4 +1,5 @@
 import './style.css';
+import './traveltrove.css';
 import { createApi } from './api.js';
 import { today, nights, dateError, escapeHtml as e, imageUrl } from './validation.js';
 
@@ -7,6 +8,7 @@ const main = document.querySelector('main');
 const types = ['Apartment', 'House', 'Villa', 'Cabin', 'Cottage', 'Studio', 'Loft', 'Guesthouse'];
 const symbols = ['▦', '⌂', '♧', '♤', '♧', '▣', '▱', '♧'];
 let routeVersion = 0;
+let pendingSection;
 let searchController;
 const price = (value) => Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 });
 // The API has no currency field. Show its numeric prices without inventing a currency.
@@ -20,10 +22,15 @@ function loading() { main.innerHTML = '<div class="page-message" role="status"><
 
 function home() {
   const filters = new URLSearchParams(location.hash.split('?')[1] || '');
-  main.innerHTML = `<section class="hero"><div class="hero-copy"><span class="eyebrow">LESS ROUTINE. MORE ROOM TO ROAM.</span><h1>Find your<br>kind of <em>somewhere.</em></h1><p>City mornings, coastal evenings, and places that feel like you.<br>Your next chapter starts with a stay.</p><a class="text-link" href="#stays" id="discover">Explore the collection <span>↗</span></a></div><div class="hero-image"><div class="photo-note"><span>THE ART OF GETTING AWAY</span><strong>A different view.<br>A better kind of everyday.</strong></div><span class="image-caption">Room to breathe, space to reconnect.</span></div></section>
+  main.innerHTML = `<section class="hero"><div class="hero-copy"><span class="eyebrow">DISCOVER. DREAM. EXPLORE.</span><h1>Find your next <em>stay.</em></h1><p>A new city. A slower morning. A place that feels like you.<br>Make your next getaway a little more memorable.</p><a class="text-link" href="#stays" id="discover">Let the journey begin <span aria-hidden="true">&#8599;</span></a></div><div class="hero-footnote"><span>&#10023; A world of places to call home</span><span>YOUR NEXT CHAPTER STARTS HERE</span></div></section>
   <form id="search" class="search-bar" aria-label="Search accommodations">${input('Where to?', 'location', 'search', `placeholder="City, region, or country" value="${e(filters.get('location') || '')}"`)}${input('Check-in', 'checkIn', 'date', `min="${today()}" value="${e(filters.get('checkIn') || '')}"`)}${input('Check-out', 'checkOut', 'date', `min="${today()}" value="${e(filters.get('checkOut') || '')}"`)}${input('Who’s coming?', 'guests', 'number', `min="1" max="20" placeholder="Add guests" value="${e(filters.get('guests') || '')}"`)}<button class="primary" type="submit">Search stays <span aria-hidden="true">↗</span></button></form>
-  <section id="stays" class="collection"><div class="section-heading"><div><span class="eyebrow">GOOD PLACES. GREAT POSSIBILITIES.</span><h2>A stay for every state of mind.</h2></div><p>Find a little space for your next big memory.</p></div><div class="category-row" role="group" aria-label="Property type"><button type="button" data-type="" class="category">✧ <span>All stays</span></button>${types.map((t,i) => `<button type="button" data-type="${t}" class="category">${symbols[i]} <span>${t}s</span></button>`).join('')}</div>
-  <form id="filters" class="filters" aria-label="Filter accommodations">${input('Min. nightly price', 'minPrice', 'number', `min="0" placeholder="Any" value="${e(filters.get('minPrice') || '')}"`)}${input('Max. nightly price', 'maxPrice', 'number', `min="0" placeholder="Any" value="${e(filters.get('maxPrice') || '')}"`)}<label>Sort by<select name="sort"><option value="newest">Newest stays</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="rating_desc">Top rated</option></select></label><button class="secondary">Apply filters</button><button class="plain" type="button" id="reset">Clear all</button></form><div id="search-error"></div><div id="results" aria-live="polite"></div></section><section class="bottom-note"><span>✧</span><div><h2>New surroundings. Same sense of home.</h2><p>From a quiet cabin to a city hideaway, make a little room for something different.</p></div><a href="#stays">Find your stay ↗</a></section>`;
+  <section id="getaways" class="destinations content-width"><div class="section-heading"><div><span class="eyebrow">A LITTLE INSPIRATION FOR YOUR NEXT TRIP</span><h2>Popular getaways</h2></div><p>Big city energy. Unforgettable little moments.</p></div><div class="destination-grid">${[
+    ['London', 'United Kingdom', 'Destination6.png', 'A classic, with a new perspective'],
+    ['Paris', 'France', 'Destination14.png', 'Slow mornings, timeless streets'],
+    ['New York', 'United States', 'Destination15.png', 'A city made for your next chapter'],
+  ].map(([city, country, photo, subtitle]) => `<button class="destination-card" type="button" data-destination="${city}"><img src="/images/${photo}" alt="${city}, ${country}" loading="lazy"><span class="destination-overlay"><small>${country}</small><strong>${city}</strong><span>${subtitle}</span></span><span class="destination-arrow" aria-hidden="true">&#8599;</span></button>`).join('')}</div></section>
+  <section id="stays" class="collection"><div class="section-heading"><div><span class="eyebrow">A PLACE FOR EVERY KIND OF TRAVELLER</span><h2>Find a place to call your own.</h2></div><p>Your dates. Your people. Your perfect escape.</p></div><div class="category-row" role="group" aria-label="Property type"><button type="button" data-type="" class="category">✧ <span>All stays</span></button>${types.map((t,i) => `<button type="button" data-type="${t}" class="category">${symbols[i]} <span>${t}s</span></button>`).join('')}</div>
+  <form id="filters" class="filters" aria-label="Filter accommodations">${input('Min. nightly price', 'minPrice', 'number', `min="0" placeholder="Any" value="${e(filters.get('minPrice') || '')}"`)}${input('Max. nightly price', 'maxPrice', 'number', `min="0" placeholder="Any" value="${e(filters.get('maxPrice') || '')}"`)}<label>Sort by<select name="sort"><option value="newest">Newest stays</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="rating_desc">Top rated</option></select></label><button class="secondary">Apply filters</button><button class="plain" type="button" id="reset">Clear all</button></form><div id="search-error"></div><div id="results" aria-live="polite"></div></section><section class="bottom-note"><div><span class="eyebrow">TRADE THE EVERYDAY FOR SOMETHING NEW</span><h2>Great getaways.<br>Even better memories.</h2><p>From a city hideaway to a quiet escape,<br>find a little space for your next adventure.</p><a class="primary" href="#stays">Find your next stay &#8599;</a></div></section><section class="about-travel content-width"><span class="eyebrow">THE WORLD IS WAITING</span><h2>About TravelTrove</h2><p>Inspired by the joy of discovering somewhere new. Explore holiday homes, find the little comforts you love, and send a booking request in just a few steps. Whether you are chasing city lights or a quieter pace, your next chapter starts with a place to stay.</p><a class="text-link" href="#/booking">Already planning a trip? Find your booking &#8599;</a></section>`;
   document.querySelector('#discover').onclick = (event) => { event.preventDefault(); document.querySelector('#stays').scrollIntoView({ behavior: 'smooth' }); };
   document.querySelector('.bottom-note a').onclick = document.querySelector('#discover').onclick;
   document.querySelector('[name="sort"]').value = filters.get('sort') || 'newest';
@@ -43,6 +50,7 @@ function home() {
   const mark = () => categories.forEach(b => { b.classList.toggle('active', b.dataset.type === propertyType); b.setAttribute('aria-pressed', String(b.dataset.type === propertyType)); });
   mark();
   categories.forEach(b => b.onclick = () => { propertyType = b.dataset.type; mark(); update(); });
+  document.querySelectorAll('[data-destination]').forEach(button => button.onclick = () => { document.querySelector('#search [name="location"]').value = button.dataset.destination; update(); document.querySelector('#stays').scrollIntoView({ behavior: 'smooth' }); });
   document.querySelector('#reset').onclick = () => { history.replaceState(null, '', '#/'); home(); };
   loadResults(Object.fromEntries(filters), Number(filters.get('page')) || 1);
 }
@@ -105,16 +113,22 @@ async function booking(id, version) {
 async function route() {
   const previous = document.querySelector('#search');
   if (previous) sessionStorage.setItem('stay-search', new URLSearchParams(new FormData(previous)).toString());
-  const version = ++routeVersion; searchController?.abort(); loading(); window.scrollTo(0, 0);
+  const version = ++routeVersion;
+  document.body.classList.toggle('home-page', !location.hash.slice(1).split('?')[0] || location.hash.slice(1).split('?')[0] === '/');
+  closeMenu(); searchController?.abort(); loading(); window.scrollTo(0, 0);
   const [path] = location.hash.slice(1).split('?');
   try {
-    if (!path || path === '/') home();
+    if (!path || path === '/') { home(); if (pendingSection) { document.getElementById(pendingSection)?.scrollIntoView(); pendingSection = null; } }
     else if (path.startsWith('/listing/')) await listing(path.split('/')[2], version);
     else if (path.startsWith('/booking/')) await booking(path.split('/')[2], version);
     else if (path === '/booking') lookup();
     else main.innerHTML = '<div class="page-message"><h1>This page wandered off.</h1><a href="#/">Back to all stays</a></div>';
   } catch (error) { if (version === routeVersion) { main.innerHTML = `<section class="page-message"><h1>We couldn’t find your stay.</h1>${notice(error.message)}<a class="secondary" href="#/">Back to all stays</a></section>`; } }
 }
+function closeMenu() { document.querySelector('header').classList.remove('menu-open'); document.querySelector('.menu-toggle').setAttribute('aria-expanded', 'false'); document.querySelector('.menu-toggle').setAttribute('aria-label', 'Open navigation'); }
+document.querySelector('.menu-toggle').onclick = () => { const open = document.querySelector('header').classList.toggle('menu-open'); document.querySelector('.menu-toggle').setAttribute('aria-expanded', String(open)); document.querySelector('.menu-toggle').setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation'); };
+document.querySelector('nav').addEventListener('click', event => { const link = event.target.closest('a'); if (!link) return; closeMenu(); if (link.dataset.section) { event.preventDefault(); const section = document.getElementById(link.dataset.section); if (section) section.scrollIntoView({ behavior: 'smooth' }); else { pendingSection = link.dataset.section; location.hash = '/'; } } });
+document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
 window.addEventListener('hashchange', route);
 document.addEventListener('error', event => { if (event.target instanceof HTMLImageElement) { event.target.classList.add('image-unavailable'); event.target.alt = 'Property photo unavailable'; event.target.removeAttribute('src'); } }, true);
 route();

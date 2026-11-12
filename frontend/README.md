@@ -1,6 +1,6 @@
 # Frontend — Member 2
 
-Responsive Airbnb-inspired accommodation UI, built with JavaScript, CSS, and Vite. Uses the existing backend APIs; no mock bookings or fallback listing data are shown in the application.
+Responsive TravelTrove-inspired accommodation UI, built with JavaScript, CSS, and Vite. Uses the existing backend APIs; no mock bookings or fallback listing data are shown in the application.
 
 ## Run locally
 
@@ -48,11 +48,11 @@ Set `VITE_API_URL` to the backend's public HTTPS origin **before** building (no 
 
 ## Limitations
 
-The backend currently has no authentication, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded property photos are placeholders; the homepage uses an external Unsplash photograph and typography uses Google Fonts with local fallback fonts.
+The backend currently has no authentication, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded property photos are placeholders; the homepage bundles the original TravelTrove photography locally and typography uses Google Fonts with local fallback fonts.
 
 ## Manual user-flow checklist
 
-Validation on 12 November 2026: production build passed; 5 API/validation tests and 4 Chromium browser tests passed, including a 390px mobile viewport. `npm audit` reported 0 vulnerabilities. Browser tests use mocked HTTP responses; live backend/MongoDB integration and AWS deployment were not executed on this machine.
+Validation on 12 November 2026: production build passed; 5 API/validation tests and 6 Chromium browser tests passed, including home, listing and booking layouts at 320px, 768px and 1440px, mobile navigation, and destination searches. `npm audit` reported 0 vulnerabilities. Browser tests use mocked HTTP responses; live backend/MongoDB integration and AWS deployment were not executed on this machine.
 
 1. Browse and paginate the seeded stays; search London and combine a property type, guests, prices and sort. Refresh and confirm filters persist.
 2. Try no matching destination, a stopped API, and retry after restoring it.
@@ -61,3 +61,7 @@ Validation on 12 November 2026: production build passed; 5 API/validation tests 
 5. Submit a valid request; verify the real reference, server-calculated total and Pending status. Reload its URL and look it up by reference.
 6. Try the same dates again and verify the conflict message. Cancel the original booking and verify those dates become available again.
 7. Check the workflow at mobile width and using keyboard-only navigation.
+
+## Visual reference
+
+The design is adapted from the user-provided [TravelTrove repository](https://github.com/Rutvigit/TravelTrove), reference commit `3f925a6a902585fa0df9c64c625e01be3cc9810f`. Local photographs in `public/images/` come from that project: `blog2.jpg` (hero), `Destination6.png`, `Destination14.png`, `Destination15.png` (destination searches), and `share.png` (getaway banner). The photo hero, rounded search, coral palette, Poppins typography, destination grid and about section follow the original design. The original registration and hosting-income buttons are replaced with working search and booking navigation appropriate to this backend. Destination images are inspiration; listing photos and prices still come from the API.

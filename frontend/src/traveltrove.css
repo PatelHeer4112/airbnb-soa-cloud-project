@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* TravelTrove's photo-led layout, adapted to the live booking application. */
+:root {
+  font-family: 'Poppins', sans-serif;
+  color: #292b35;
+  background: #fff;
+  --accent: #f13242;
+  --muted: #777984;
+  --line: #e9e9ed;
+}
+
+html { scroll-behavior: smooth; }
+header { height: 100px; padding: 0 6%; background: white; position: relative; z-index: 10; }
+.brand { display: flex; flex-wrap: wrap; column-gap: 0; width: 190px; font-size: 27px; letter-spacing: -1px; color: #361e70; line-height: 1.2; }
+.brand > span { color: var(--accent); font-style: italic; }
+.brand small { flex-basis: 100%; font-size: 8px; letter-spacing: 3px; margin-top: 7px; font-weight: 500; }
+nav { gap: clamp(20px, 3vw, 45px); align-items: center; font-size: 12px; }
+nav a:first-child { border: 0; }
+nav a:hover { color: var(--accent); }
+nav .nav-booking { border-radius: 30px; padding: 12px 22px; background: var(--accent); color: white; }
+nav .nav-booking span { color: inherit; }
+.menu-toggle { display: none; }
+.home-page header { position: absolute; top: 0; width: 100%; background: transparent; border-bottom: 1px solid #ffffff26; }
+.home-page header .brand { color: white; }
+.home-page header .brand > span { color: #ff7783; }
+.home-page nav { color: white; }
+.home-page nav .nav-booking { background: white; color: #292b35; }
+.hero { position: relative; display: flex; align-items: center; justify-content: center; max-width: none; min-height: 720px; padding: 165px 6% 190px; background: linear-gradient(180deg, #10162955 0%, #10162942 45%, #1016298f 100%), url('/images/blog2.jpg') center 52% / cover; }
+.hero-copy { position: relative; text-align: center; max-width: 900px; padding: 0; color: white; }
+.hero-copy .eyebrow { color: #fff; letter-spacing: 4px; font-size: 10px; }
+h1, h2 { font-family: 'Poppins', sans-serif; }
+.hero h1 { font-size: clamp(48px, 5.5vw, 80px); line-height: 1.2; letter-spacing: -2.6px; font-weight: 600; margin: 24px 0 18px; }
+.hero h1 em { color: white; font-style: normal; }
+.hero-copy p { color: #ffffffea; font-size: 15px; line-height: 1.9; margin-bottom: 25px; }
+.hero-copy .text-link { font-weight: 500; color: white; gap: 18px; font-size: 12px; }
+.hero-copy .text-link span { color: white; }
+.hero-footnote { position: absolute; bottom: 88px; left: 6%; right: 6%; display: flex; justify-content: space-between; gap: 20px; color: #fff; font-size: 10px; letter-spacing: 1px; }
+.hero-footnote span:last-child { font-size: 8px; letter-spacing: 2px; }
+.search-bar { margin: -47px auto 0; z-index: 1; max-width: 1180px; width: 88%; border: 0; border-radius: 60px; padding: 22px 25px 22px 34px; box-shadow: 0 12px 45px #1f22351a; grid-template-columns: 1.4fr 1fr 1fr .8fr auto; gap: 22px; }
+.search-bar label { font-size: 11px; gap: 8px; }
+.search-bar input { font-family: inherit; font-size: 11px; height: 25px; }
+.search-bar .primary { border-radius: 40px; padding: 18px 24px; }
+.primary { background: var(--accent); border-radius: 7px; }
+.primary:hover { background: #d81c30; }
+.primary:focus-visible, a:focus-visible, button:focus-visible { outline-color: #5950a1; }
+.eyebrow { color: #e23d4c; font-size: 9px; letter-spacing: 2px; }
+.content-width, .collection { width: 88%; max-width: 1280px; margin-left: auto; margin-right: auto; padding: 0; }
+.destinations { margin-top: 85px; }
+.section-heading { margin-bottom: 24px; }
+.section-heading h2 { font-size: clamp(24px, 2.4vw, 34px); font-weight: 500; letter-spacing: -1px; margin-bottom: 0; }
+.section-heading p { margin-bottom: 0; font-size: 11px; }
+.destination-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.destination-card { position: relative; aspect-ratio: 1.48; border: 0; border-radius: 12px; overflow: hidden; padding: 0; text-align: left; background: #292b35; color: white; }
+.destination-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 15%, #121829aa); pointer-events: none; }
+.destination-card > img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.destination-card:hover > img { transform: scale(1.06); }
+.destination-overlay { position: absolute; z-index: 1; bottom: 25px; left: 25px; right: 25px; display: flex; flex-direction: column; }
+.destination-overlay small { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; }
+.destination-overlay strong { font-size: 29px; font-weight: 500; margin: 5px 0; }
+.destination-overlay > span { font-size: 10px; color: #ffffffd6; }
+.destination-arrow { position: absolute; z-index: 1; right: 22px; top: 22px; display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid #ffffff80; border-radius: 50%; font-size: 16px; }
+.collection { margin-top: 80px; scroll-margin-top: 30px; }
+.category-row { margin-top: 32px; gap: 16px; }
+.category { font-size: 29px; color: #656573; padding-bottom: 20px; }
+.category span { font-size: 11px; }
+.filters { background: #f8f8fa; border: 1px solid #efeff3; border-radius: 10px; padding: 18px; margin-bottom: 24px; gap: 18px; }
+.filters label { max-width: 185px; }
+.filters label:nth-child(3) { max-width: 220px; }
+.filters input, .filters select { font-family: inherit; min-height: 42px; }
+.secondary { border-radius: 7px; }
+.results-heading { margin: 20px 0; }
+.grid { gap: 30px 24px; }
+.card-image { aspect-ratio: 1.22; border-radius: 11px; }
+.card-location { font-size: 12px; gap: 5px; }
+.card-location span { color: #c52d3b; }
+.stay-card h3 { font-size: 11px; line-height: 1.8; }
+.stay-card p { font-size: 10px; }
+.card-price { font-size: 14px; }
+.card-price .card-arrow { color: var(--accent); }
+.type-pill { border-radius: 6px; background: #fffffff2; font-size: 9px; }
+.bottom-note { max-width: 1280px; width: 88%; min-height: 350px; margin: 80px auto; padding: 50px; border-radius: 14px; background: linear-gradient(90deg, #151529d9, #1515290a), url('/images/share.png') center / cover; color: white; }
+.bottom-note .eyebrow { color: #fff; font-size: 8px; }
+.bottom-note h2 { font-size: clamp(28px, 3vw, 44px); letter-spacing: -1px; font-weight: 500; line-height: 1.3; margin: 16px 0; }
+.bottom-note p { color: #fff; font-size: 12px; margin-bottom: 24px; }
+.bottom-note a { margin: 0; border: 0; font-size: 12px; }
+.about-travel { text-align: center; max-width: 850px; margin-bottom: 80px; }
+.about-travel h2 { color: #361e70; font-size: 28px; font-weight: 500; margin: 15px 0 20px; }
+.about-travel p { font-size: 12px; line-height: 2.2; }
+.about-travel .text-link { font-size: 11px; color: #361e70; margin-top: 15px; }
+footer { width: 88%; max-width: 1280px; margin: auto; padding: 30px 0; font-size: 10px; }
+footer .brand { font-size: 23px; }
+.detail, .confirmation { max-width: 1280px; padding-top: 45px; }
+.detail h1 { font-size: clamp(28px, 3.5vw, 43px); font-weight: 500; letter-spacing: -1.4px; }
+.detail h2 { font-size: 25px; font-weight: 500; }
+.detail-layout { gap: 65px; }
+.gallery { border-radius: 12px; }
+.booking-panel { border-radius: 14px; box-shadow: 0 10px 40px #2222390e; }
+.booking-panel label { font-size: 11px; }
+.amenities { color: #666679; }
+.confirmation h1, .lookup h1 { font-size: clamp(32px, 4vw, 50px); font-weight: 500; letter-spacing: -1.5px; }
+.confirmation-card { border-radius: 14px; }
+.confirmation-card h2 { font-size: 23px; }
+.status { background: #fff0f1; color: #b62636; }
+.confirmation-icon { background: #fff0f1; color: #d92b3e; }
+.lookup h1 em { color: var(--accent); font-style: normal; }
+
+@media (max-width: 1100px) {
+  header { padding-left: 5%; padding-right: 5%; }
+  nav { gap: 20px; font-size: 11px; }
+  nav .nav-booking { padding: 11px 17px; }
+  .search-bar { width: 90%; gap: 15px; padding: 21px 24px; grid-template-columns: 1.2fr 1fr 1fr .7fr; border-radius: 20px; }
+  .search-bar button { grid-column: 1/-1; }
+  .search-bar .primary { padding: 12px 24px; }
+  .hero { min-height: 680px; padding-bottom: 200px; }
+  .destination-grid { gap: 18px; }
+  .destination-overlay { left: 20px; bottom: 20px; }
+  .destination-overlay strong { font-size: 25px; }
+  .destination-overlay > span { max-width: 160px; line-height: 1.7; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .detail-layout { gap: 30px; }
+}
+
+@media (max-width: 760px) {
+  header { height: 82px; padding: 0 6%; }
+  .brand { font-size: 24px; width: 170px; }
+  .brand small { font-size: 7px; letter-spacing: 2.5px; }
+  .menu-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .menu-toggle span { display: block; width: 20px; height: 2px; background: #361e70; }
+  .home-page .menu-toggle { background: #ffffff1c; border-color: #ffffff66; }
+  .home-page .menu-toggle span { background: #fff; }
+  header nav { display: none; position: absolute; top: 81px; left: 0; right: 0; flex-direction: column; align-items: stretch; padding: 15px 6% 24px; gap: 5px; background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 14px 25px #1f223514; }
+  header.menu-open nav { display: flex; color: #292b35; }
+  header nav a { padding: 14px 12px; font-size: 13px; }
+  header nav a:first-child { padding: 14px 12px; }
+  .home-page nav .nav-booking { color: white; background: var(--accent); }
+  header nav .nav-booking { margin-top: 8px; border-radius: 7px; text-align: center; padding: 13px; }
+  .hero { min-height: 620px; padding: 150px 6% 180px; background-position: 57% center; }
+  .hero h1 { font-size: clamp(40px, 8vw, 58px); letter-spacing: -1.7px; }
+  .hero-copy .eyebrow { font-size: 8px; letter-spacing: 3px; }
+  .hero-copy p { font-size: 12px; }
+  .hero-copy p br { display: none; }
+  .hero-footnote { bottom: 100px; justify-content: center; font-size: 9px; }
+  .hero-footnote span:last-child { display: none; }
+  .search-bar { margin-top: -66px; width: 88%; border-radius: 15px; padding: 24px; grid-template-columns: 1fr 1fr; gap: 22px 18px; }
+  .search-bar label { border: 0; padding: 0; font-size: 10px; }
+  .search-bar input { padding: 0; font-size: 10px; width: 100%; }
+  .search-bar .primary { border-radius: 8px; }
+  .destinations { margin-top: 60px; }
+  .section-heading { margin-bottom: 22px; }
+  .section-heading h2 { font-size: 26px; }
+  .section-heading .eyebrow { font-size: 8px; line-height: 1.8; }
+  .destination-grid { grid-template-columns: 1fr; gap: 16px; }
+  .destination-card { aspect-ratio: 1.8; }
+  .destination-overlay strong { font-size: 29px; }
+  .destination-overlay > span { max-width: none; }
+  .collection { margin-top: 60px; }
+  .category-row { margin-top: 25px; gap: 16px; }
+  .category { min-width: 70px; font-size: 26px; }
+  .filters { padding: 16px; gap: 14px; }
+  .filters label { min-width: 100px; max-width: none; }
+  .filters label:nth-child(3) { max-width: none; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; }
+  .card-location { display: block; font-size: 11px; }
+  .card-location span { display: block; margin-top: 4px; }
+  .card-image { aspect-ratio: 1; }
+  .stay-card h3 { font-size: 10px; }
+  .type-pill { top: 9px; left: 9px; padding: 5px 7px; font-size: 8px; }
+  .bottom-note { min-height: 330px; margin: 60px auto; padding: 32px 24px; background-position: 65% center; }
+  .bottom-note h2 { font-size: 30px; }
+  .bottom-note .eyebrow { line-height: 1.8; display: block; max-width: 240px; }
+  .bottom-note a { display: inline-flex; }
+  .about-travel { margin-bottom: 55px; }
+  .about-travel h2 { font-size: 25px; }
+  .about-travel p { font-size: 11px; }
+  footer { gap: 20px; padding: 25px 0; }
+  footer .brand { font-size: 23px; width: auto; }
+  .detail { padding: 30px 6% 50px; }
+  .detail h1 { font-size: 31px; }
+  .detail-layout { grid-template-columns: 1fr; gap: 30px; }
+  .detail h2 { font-size: 23px; }
+  .booking-panel { padding: 23px; }
+  .confirmation { padding: 35px 6% 55px; }
+  .confirmation h1 { font-size: 34px; }
+  .confirmation-card { grid-template-columns: 1fr; }
+  .confirmation-card h2 { font-size: 22px; }
+  .lookup { padding-top: 50px; }
+}
+
+@media (max-width: 370px) {
+  .search-bar { padding: 20px 16px; gap: 20px 10px; }
+  .hero h1 { font-size: 37px; }
+  .grid { grid-template-columns: 1fr; }
+  .card-location { display: flex; }
+  .card-location span { margin: 0; }
+  .two-col { grid-template-columns: 1fr; gap: 0; }
+  .facts span { margin: 0 4px; }
+  .pagination { gap: 9px; }
+  .pagination button { padding: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

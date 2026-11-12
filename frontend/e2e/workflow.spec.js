@@ -67,3 +67,31 @@ test('booking conflict keeps guest input and explains the failure', async ({page
   await expect(page.getByLabel('Full name')).toHaveValue('Test Guest');
   await expect(page.getByRole('button',{name:'Request to book'})).toBeEnabled();
 });
+
+test('TravelTrove navigation and destination cards work on mobile', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/');
+  await page.getByRole('button',{name:'Open navigation'}).click();
+  await expect(page.getByRole('button',{name:'Close navigation'})).toHaveAttribute('aria-expanded','true');
+  await page.getByRole('link',{name:'Popular Getaways',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Open navigation'})).toHaveAttribute('aria-expanded','false');
+  await page.getByRole('button',{name:/France Paris/}).click();
+  await expect(page.getByLabel('Where to?')).toHaveValue('Paris');
+  await expect(page).toHaveURL(/location=Paris/);
+  await page.goto(`/#/listing/${id}`);
+  await page.getByRole('button',{name:'Open navigation'}).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button',{name:'Open navigation'})).toHaveAttribute('aria-expanded','false');
+});
+
+test('home, listing and booking layouts fit narrow, tablet and desktop screens', async ({page}) => {
+  for (const width of [320,768,1440]) {
+    await page.setViewportSize({width,height:900});
+    for (const path of ['/',`/#/listing/${id}`,`/#/booking/${bookingId}`]) {
+      await page.goto(path);
+      await expect(page.getByRole('heading',{level:1})).toBeVisible();
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth),`${path} at ${width}px`).toBe(true);
+      if (path === '/') await page.screenshot({path:`test-results/traveltrove-home-${width}.png`,fullPage:true});
+    }
+  }
+});
