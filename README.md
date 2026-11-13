@@ -26,3 +26,5 @@ The backend folder was removed from this branch at the user's request. When brin
 ## Verification
 
 Unit tests, browser workflows, automated accessibility checks, backend HTTP contract checks, and isolated real-MongoDB integration verify the frontend. Live checks cover booking persistence, conflicts, cancellation and concurrent reservations. See [frontend/README.md](frontend/README.md) for commands and practical limits. This branch creates no cloud resources and claims no AWS performance results.
+
+Discovery options are derived from all pages of the listing API, not a fixed destination list. List your space publishes through Member 1's existing API. See the detailed dynamic-discovery checklist and the temporary manual-demo backend command in [frontend/README.md](frontend/README.md).

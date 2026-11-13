@@ -13,6 +13,8 @@ import {
 import { mountCalendar } from "./calendar.js";
 import { downloadItinerary } from "./itinerary.js";
 import { createApi } from "./api.js";
+import { mountDiscovery } from "./discovery.js";
+import { hostPage } from "./host.js";
 import {
   today,
   nights,
@@ -23,28 +25,9 @@ import {
 
 const api = createApi(import.meta.env.VITE_API_URL || "http://localhost:5000");
 const main = document.querySelector("main");
-const types = [
-  "Apartment",
-  "House",
-  "Villa",
-  "Cabin",
-  "Cottage",
-  "Studio",
-  "Loft",
-  "Guesthouse",
-];
-const symbols = [
-  "apartment",
-  "home",
-  "leaf",
-  "cabin",
-  "leaf",
-  "grid",
-  "apartment",
-  "home",
-];
 let routeVersion = 0;
 let pendingSection;
+let disposeDiscovery;
 let searchController;
 const price = (value) =>
   Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -92,34 +75,27 @@ function loading() {
 }
 
 function home() {
+  disposeDiscovery?.();
   const filters = new URLSearchParams(location.hash.split("?")[1] || "");
   try {
     sessionStorage.setItem("stay-results", location.hash || "#/");
   } catch {}
-  main.innerHTML = `<section class="hero"><div class="hero-copy"><span class="eyebrow">A LITTLE FURTHER FROM THE EVERYDAY</span><h1>Somewhere new.<br><em>Something you.</em></h1><p>Remarkable places. Your favourite people.<br> Find a stay that makes the whole trip.</p><a class="text-link" href="#stays" id="discover">Let the journey begin <span aria-hidden="true">&#8599;</span></a></div><div class="hero-footnote"><span>&#10023; A world of places to call home</span><span>EXPLORE MORE. FEEL AT HOME.</span></div></section>
-  <form id="search" class="search-bar" aria-label="Search accommodations">${input("Where to?", "location", "search", `maxlength="100" placeholder="City, region, or country" value="${e(filters.get("location") || "")}"`)}${input("Check-in", "checkIn", "date", `min="${today()}" value="${e(filters.get("checkIn") || "")}"`)}${input("Check-out", "checkOut", "date", `min="${today()}" value="${e(filters.get("checkOut") || "")}"`)}${input("Who’s coming?", "guests", "number", `min="1" max="20" placeholder="Add guests" value="${e(filters.get("guests") || "")}"`)}<button class="primary" type="submit">${icon("search")} Search stays</button></form>
-  <section class="journey-strip content-width" aria-label="Plan your stay"><div>${icon("search")}<span><strong>Find your kind of place</strong><small>Search by destination, dates, and comforts.</small></span></div><div>${icon("heart")}<span><strong>Keep the ones you love</strong><small>Save favourites and compare the details.</small></span></div><div>${icon("calendar")}<span><strong>Make it a date</strong><small>Check availability and request your stay.</small></span></div></section><section id="getaways" class="destinations content-width"><div class="section-heading"><div><span class="eyebrow">A LITTLE INSPIRATION FOR YOUR NEXT TRIP</span><h2>Popular getaways</h2></div><p>Big city energy. Unforgettable little moments.</p></div><div class="destination-grid">${[
-    [
-      "London",
-      "United Kingdom",
-      "Destination6.png",
-      "A classic, with a new perspective",
-    ],
-    ["Paris", "France", "Destination14.png", "Slow mornings, timeless streets"],
-    [
-      "New York",
-      "United States",
-      "Destination15.png",
-      "A city made for your next chapter",
-    ],
-  ]
+  main.innerHTML = `<div id="discovery-page"><section class="hero"><div class="hero-copy"><span class="eyebrow">A LITTLE FURTHER FROM THE EVERYDAY</span><h1>Somewhere new.<br><em>Something you.</em></h1><p>Remarkable places. Your favourite people.<br> Find a stay that makes the whole trip.</p><a class="text-link" href="#stays" id="discover">Let the journey begin <span aria-hidden="true">&#8599;</span></a></div><div class="hero-footnote"><span>&#10023; A world of places to call home</span><span>EXPLORE MORE. FEEL AT HOME.</span></div></section>
+  <form id="search" class="search-bar" aria-label="Search accommodations"><input type="hidden" name="city" value="${e(filters.get("city") || "")}"><datalist id="destination-suggestions"></datalist>${input("Where to?", "location", "search", `list="destination-suggestions" autocomplete="off" maxlength="100" placeholder="Anywhere: city, region, country" value="${e(filters.get("location") || "")}"`)}${input("Check-in", "checkIn", "date", `min="${today()}" value="${e(filters.get("checkIn") || "")}"`)}${input("Check-out", "checkOut", "date", `min="${today()}" value="${e(filters.get("checkOut") || "")}"`)}${input("Who’s coming?", "guests", "number", `min="1" max="20" placeholder="Add guests" value="${e(filters.get("guests") || "")}"`)}<button class="primary" type="submit">${icon("search")} Search stays</button></form>
+  <section class="journey-strip content-width" aria-label="Plan your stay"><div>${icon("search")}<span><strong>Find your kind of place</strong><small>Search by destination, dates, and comforts.</small></span></div><div>${icon("heart")}<span><strong>Keep the ones you love</strong><small>Save favourites and compare the details.</small></span></div><div>${icon("calendar")}<span><strong>Make it a date</strong><small>Check availability and request your stay.</small></span></div></section><section id="getaways" class="destinations content-width"><div class="section-heading"><div><span class="eyebrow">A LITTLE INSPIRATION FOR YOUR NEXT TRIP</span><h2>Explore destinations</h2></div><p>Real places from the current listing inventory.</p></div><div class="discovery-controls"><p id="inventory-summary" role="status">Loading places from the API...</p><button type="button" class="secondary" id="refresh-inventory">Refresh places</button></div><div class="destination-grid" id="destination-inventory"><p>Discovering destinations...</p></div><button class="secondary more-destinations" id="more-destinations" type="button" hidden>Explore all destinations</button></section>
+  <section id="stays" class="collection"><div class="section-heading"><div><span class="eyebrow">A PLACE FOR EVERY KIND OF TRAVELLER</span><h2>Find a place to call your own.</h2></div><p>Your dates. Your people. Your perfect escape.</p></div><div class="category-row" role="group" aria-label="Property type"><button type="button" data-type="" class="category">${icon("grid")} <span>All stays</span></button></div>
+  <form id="filters" class="filters" aria-label="Filter accommodations"><label>Country<select name="country" aria-label="Country"><option value="">All countries</option>${filters.get("country") ? `<option selected>${e(filters.get("country"))}</option>` : ""}</select></label>${input("Min. nightly price", "minPrice", "number", `min="0" placeholder="Any" value="${e(filters.get("minPrice") || "")}"`)}${input("Max. nightly price", "maxPrice", "number", `min="0" placeholder="Any" value="${e(filters.get("maxPrice") || "")}"`)}<label>Sort by<select name="sort"><option value="newest">Newest stays</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="rating_desc">Top rated</option></select></label><button class="secondary">Apply filters</button><button class="plain" type="button" id="reset">Clear all</button></form><details class="amenity-filters" ${filters.get("amenities") ? "open" : ""}><summary>${icon("compare")} Make room for your must-haves <span id="amenity-count"></span></summary><div class="amenity-options">${(
+    filters.get("amenities") || ""
+  )
+    .split(",")
+    .filter(Boolean)
     .map(
-      ([city, country, photo, subtitle]) =>
-        `<button class="destination-card" type="button" data-destination="${city}"><img src="/images/${photo}" alt="${city}, ${country}" loading="lazy"><span class="destination-overlay"><small>${country}</small><strong>${city}</strong><span>${subtitle}</span></span><span class="destination-arrow" aria-hidden="true">&#8599;</span></button>`,
+      (a) =>
+        `<label><input type="checkbox" name="amenity" value="${e(a)}" ${(filters.get("amenities") || "").split(",").includes(a) ? "checked" : ""}>${e(a)}</label>`,
     )
-    .join("")}</div></section>
-  <section id="stays" class="collection"><div class="section-heading"><div><span class="eyebrow">A PLACE FOR EVERY KIND OF TRAVELLER</span><h2>Find a place to call your own.</h2></div><p>Your dates. Your people. Your perfect escape.</p></div><div class="category-row" role="group" aria-label="Property type"><button type="button" data-type="" class="category">${icon("grid")} <span>All stays</span></button>${types.map((t, i) => `<button type="button" data-type="${t}" class="category">${icon(symbols[i])} <span>${t}s</span></button>`).join("")}</div>
-  <form id="filters" class="filters" aria-label="Filter accommodations">${input("Min. nightly price", "minPrice", "number", `min="0" placeholder="Any" value="${e(filters.get("minPrice") || "")}"`)}${input("Max. nightly price", "maxPrice", "number", `min="0" placeholder="Any" value="${e(filters.get("maxPrice") || "")}"`)}<label>Sort by<select name="sort"><option value="newest">Newest stays</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="rating_desc">Top rated</option></select></label><button class="secondary">Apply filters</button><button class="plain" type="button" id="reset">Clear all</button></form><details class="amenity-filters" ${filters.get("amenities") ? "open" : ""}><summary>${icon("compare")} Make room for your must-haves <span id="amenity-count"></span></summary><div class="amenity-options">${["Wi-Fi", "Kitchen", "Free parking", "Pool", "Air conditioning", "Workspace", "Pet friendly", "Hot tub"].map((a) => `<label><input type="checkbox" name="amenity" value="${e(a)}" ${(filters.get("amenities") || "").split(",").includes(a) ? "checked" : ""}>${e(a)}</label>`).join("")}</div></details><div id="active-filters" class="active-filters"></div><div id="search-error"></div><div id="results" aria-live="polite"></div></section><section class="bottom-note"><div><span class="eyebrow">TRADE THE EVERYDAY FOR SOMETHING NEW</span><h2>Great getaways.<br>Even better memories.</h2><p>From a city hideaway to a quiet escape,<br>find a little space for your next adventure.</p><a class="primary" href="#stays">Find your next stay &#8599;</a></div></section><section class="about-travel content-width"><span class="eyebrow">THE WORLD IS WAITING</span><h2>About Airbnb</h2><p>Inspired by the joy of discovering somewhere new. Explore holiday homes, find the little comforts you love, and send a booking request in just a few steps. Whether you are chasing city lights or a quieter pace, your next chapter starts with a place to stay.</p><a class="text-link" href="#/booking">Already planning a trip? Find your booking &#8599;</a></section>`;
+    .join(
+      "",
+    )}</div></details><div id="active-filters" class="active-filters"></div><div id="search-error"></div><div id="results" aria-live="polite"></div></section><section class="bottom-note"><div><span class="eyebrow">TRADE THE EVERYDAY FOR SOMETHING NEW</span><h2>Great getaways.<br>Even better memories.</h2><p>From a city hideaway to a quiet escape,<br>find a little space for your next adventure.</p><a class="primary" href="#stays">Find your next stay &#8599;</a></div></section><section class="about-travel content-width"><span class="eyebrow">THE WORLD IS WAITING</span><h2>About Airbnb</h2><p>Inspired by the joy of discovering somewhere new. Explore holiday homes, find the little comforts you love, and send a booking request in just a few steps. Whether you are chasing city lights or a quieter pace, your next chapter starts with a place to stay.</p><a class="text-link" href="#/booking">Already planning a trip? Find your booking &#8599;</a><p><a class="primary" href="#/host">Have a place to share? List your space</a></p></section></div>`;
   document.querySelector("#discover").onclick = (event) => {
     event.preventDefault();
     document.querySelector("#stays").scrollIntoView({ behavior: "smooth" });
@@ -165,38 +141,35 @@ function home() {
       .querySelector("#stays")
       .scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  document
-    .querySelectorAll('[name="amenity"]')
-    .forEach((el) => (el.onchange = update));
   for (const form of document.querySelectorAll("#search, #filters"))
     form.onsubmit = (event) => {
       event.preventDefault();
       update();
     };
-  const categories = [...document.querySelectorAll("[data-type]")];
-  const mark = () =>
-    categories.forEach((b) => {
-      b.classList.toggle("active", b.dataset.type === propertyType);
-      b.setAttribute("aria-pressed", String(b.dataset.type === propertyType));
-    });
-  mark();
-  categories.forEach(
-    (b) =>
-      (b.onclick = () => {
-        propertyType = b.dataset.type;
-        mark();
-        update();
-      }),
-  );
-  document.querySelectorAll("[data-destination]").forEach(
-    (button) =>
-      (button.onclick = () => {
-        document.querySelector('#search [name="location"]').value =
-          button.dataset.destination;
-        update();
-        document.querySelector("#stays").scrollIntoView({ behavior: "smooth" });
-      }),
-  );
+  document.querySelector('#search [name="location"]').oninput = () => {
+    document.querySelector('#search [name="city"]').value = "";
+  };
+  document.querySelector('[name="country"]').onchange = () => {
+    document.querySelector('#search [name="city"]').value = "";
+    update();
+  };
+  disposeDiscovery = mountDiscovery({
+    api,
+    root: document.querySelector("#discovery-page"),
+    filters,
+    onSearch: update,
+    onType: (value) => {
+      propertyType = value;
+      update();
+    },
+    onDestination: (destination) => {
+      document.querySelector('#search [name="location"]').value =
+        destination.city;
+      document.querySelector('#search [name="city"]').value = destination.city;
+      document.querySelector('[name="country"]').value = destination.country;
+      update();
+    },
+  });
   document.querySelector("#reset").onclick = () => {
     history.replaceState(null, "", "#/");
     home();
@@ -483,6 +456,7 @@ async function route() {
       );
     } catch {}
   }
+  disposeDiscovery?.();
   const version = ++routeVersion;
   document.body.classList.toggle(
     "home-page",
@@ -501,7 +475,9 @@ async function route() {
         document.getElementById(pendingSection)?.scrollIntoView();
         pendingSection = null;
       }
-    } else if (path === "/saved" || path === "/compare")
+    } else if (path === "/host")
+      hostPage(api, main, () => version === routeVersion);
+    else if (path === "/saved" || path === "/compare")
       await collectionPage(
         path.slice(1),
         api,

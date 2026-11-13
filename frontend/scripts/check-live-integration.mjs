@@ -64,6 +64,45 @@ try {
     new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
   const checkIn = shift(5),
     checkOut = shift(7);
+  await page.goto("http://127.0.0.1:5179/#/host");
+  await page
+    .getByLabel("Listing title", { exact: true })
+    .fill("Kyoto integration retreat");
+  await page
+    .getByLabel("Description", { exact: true })
+    .fill(
+      "An integration listing in a new destination, created through the actual API.",
+    );
+  await page.getByLabel("City", { exact: true }).fill("Kyoto");
+  await page.getByLabel("Country", { exact: true }).fill("Japan");
+  await page.getByLabel("Neighbourhood / area").fill("Gion");
+  await page.getByLabel("Price per night").fill("95");
+  await page.getByLabel("Amenities (comma separated)").fill("Wi-Fi, Sauna");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Publish stay", exact: true }).click();
+  await page
+    .getByRole("heading", { name: "Kyoto integration retreat", exact: true })
+    .waitFor();
+  assert.equal(
+    await Listing.countDocuments({ city: "Kyoto", country: "Japan" }),
+    1,
+  );
+  await page.goto("http://127.0.0.1:5179");
+  await page
+    .getByRole("button", { name: /Explore all .* destinations/ })
+    .waitFor();
+  await page
+    .getByRole("button", { name: /Explore all .* destinations/ })
+    .click();
+  await page
+    .getByRole("button", { name: "Explore Kyoto, Japan", exact: true })
+    .click();
+  await page
+    .getByRole("heading", { name: "Kyoto integration retreat", exact: true })
+    .waitFor();
+  console.log(
+    "PASS real browser publishes a listing in a new city; MongoDB, discovery and search reflect it",
+  );
   await page.goto("http://127.0.0.1:5179");
   await page.getByLabel("Where to?").fill("London");
   await page.getByRole("button", { name: "Search stays" }).click();

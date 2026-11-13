@@ -10,7 +10,8 @@
     "test": "node --test tests/*.test.js",
     "test:e2e": "playwright test",
     "format": "prettier --write src scripts tests e2e index.html playwright.config.js package.json README.md",
-    "format:check": "prettier --check src scripts tests e2e index.html playwright.config.js package.json README.md"
+    "format:check": "prettier --check src scripts tests e2e index.html playwright.config.js package.json README.md",
+    "demo:backend": "node scripts/start-demo-backend.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

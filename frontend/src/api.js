@@ -38,6 +38,13 @@ export function createApi(
       Object.entries(params).filter(([, v]) => v !== "" && v != null),
     ).toString();
   return {
+    listings: (page = 1, limit = 50, signal) =>
+      request(`/api/listings?${query({ page, limit })}`, { signal }),
+    createListing: (listing) =>
+      request("/api/listings", {
+        method: "POST",
+        body: JSON.stringify(listing),
+      }),
     search: (filters, signal) =>
       request(`/api/search?${query(filters)}`, { signal }),
     listing: (id) => request(`/api/listings/${encodeURIComponent(id)}`),

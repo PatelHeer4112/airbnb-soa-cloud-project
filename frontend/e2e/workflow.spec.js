@@ -24,7 +24,8 @@ test.beforeEach(async ({ page }) => {
     const request = route.request(),
       url = new URL(request.url());
     let data;
-    if (url.pathname === "/api/search") data = [listing];
+    if (url.pathname === "/api/search" || url.pathname === "/api/listings")
+      data = [listing];
     else if (url.pathname === `/api/listings/${id}`) data = listing;
     else if (url.pathname.endsWith("/bookings") && request.method() === "GET")
       data = { bookedRanges: [] };
@@ -203,9 +204,11 @@ test("Airbnb navigation and destination cards work on mobile", async ({
   await expect(
     page.getByRole("button", { name: "Open navigation" }),
   ).toHaveAttribute("aria-expanded", "false");
-  await page.getByRole("button", { name: /France Paris/ }).click();
-  await expect(page.getByLabel("Where to?")).toHaveValue("Paris");
-  await expect(page).toHaveURL(/location=Paris/);
+  await page
+    .getByRole("button", { name: /Explore London, United Kingdom/ })
+    .click();
+  await expect(page.getByLabel("Where to?")).toHaveValue("London");
+  await expect(page).toHaveURL(/location=London/);
   await page.goto(`/#/listing/${id}`);
   await page.getByRole("button", { name: "Open navigation" }).click();
   await page.keyboard.press("Escape");
@@ -219,7 +222,12 @@ test("home, listing and booking layouts fit narrow, tablet and desktop screens",
 }) => {
   for (const width of [320, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ["/", `/#/listing/${id}`, `/#/booking/${bookingId}`]) {
+    for (const path of [
+      "/",
+      `/#/listing/${id}`,
+      `/#/booking/${bookingId}`,
+      "/#/host",
+    ]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       expect(

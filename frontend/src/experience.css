@@ -1,4 +1,122 @@
 /* Shared visual system for discovery, collections and the booking journey. */
+.discovery-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.discovery-controls p {
+  font-size: 11px;
+}
+.discovery-controls button {
+  flex-shrink: 0;
+}
+.more-destinations {
+  display: block;
+  margin: 24px auto 0;
+}
+.more-destinations[hidden] {
+  display: none;
+}
+.filters {
+  flex-wrap: wrap;
+}
+.host-page {
+  padding: 40px 0 70px;
+}
+.host-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 65px;
+}
+.host-layout fieldset {
+  border: 1px solid #e8e5e2;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 0 0 25px;
+  min-width: 0;
+}
+.host-layout legend {
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0 9px;
+}
+.host-layout label {
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.host-layout input,
+.host-layout textarea,
+.host-layout select {
+  font: inherit;
+  font-size: 13px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dfdbd8;
+  border-radius: 7px;
+  background: white;
+  color: #333640;
+}
+.host-layout textarea {
+  resize: vertical;
+}
+.host-layout .host-consent {
+  flex-direction: row;
+  align-items: start;
+  font-weight: 400;
+  line-height: 1.9;
+}
+.host-consent input {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  margin: 4px 6px 0 0;
+  accent-color: #d7354c;
+}
+.host-guidance {
+  position: sticky;
+  top: 30px;
+  align-self: start;
+  padding: 30px;
+  border: 1px solid #e8e5e2;
+  border-radius: 14px;
+  background: #fcf9f6;
+}
+.host-guidance h2 {
+  font-size: 27px;
+  line-height: 1.4;
+}
+.host-guidance p,
+.host-guidance li {
+  font-size: 12px;
+  line-height: 1.9;
+}
+.host-guidance ol {
+  padding-left: 20px;
+}
+@media (max-width: 760px) {
+  .host-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .host-layout fieldset {
+    padding: 20px;
+  }
+  .host-guidance {
+    position: static;
+  }
+  .discovery-controls {
+    align-items: start;
+  }
+  .discovery-controls p {
+    font-size: 10px;
+  }
+  .discovery-controls button {
+    font-size: 10px;
+    padding: 10px;
+  }
+}
 :root {
   --ink: #272b33;
   --accent: #d7354c;

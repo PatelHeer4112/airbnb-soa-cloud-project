@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
     const request = route.request(),
       url = new URL(request.url());
     let data;
-    if (url.pathname === "/api/search")
+    if (url.pathname === "/api/search" || url.pathname === "/api/listings")
       return route.fulfill({
         json: {
           success: true,
