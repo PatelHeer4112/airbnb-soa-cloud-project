@@ -1,1 +1,24 @@
-{"name":"airbnb-soa-frontend","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"vite --port 5173 --strictPort","build":"vite build","preview":"vite preview --port 5173 --strictPort","test":"node --test tests/*.test.js"},"devDependencies":{"vite":"^6.1.0","@playwright/test":"^1.51.0"},"engines":{"node":">=20"}}
+{
+  "name": "airbnb-soa-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5173 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --port 5173 --strictPort",
+    "test": "node --test tests/*.test.js",
+    "test:e2e": "playwright test",
+    "format": "prettier --write src scripts tests e2e index.html playwright.config.js package.json README.md",
+    "format:check": "prettier --check src scripts tests e2e index.html playwright.config.js package.json README.md"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.51.0",
+    "prettier": "^3.10.1",
+    "vite": "^6.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

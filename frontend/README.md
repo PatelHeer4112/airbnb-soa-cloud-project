@@ -17,12 +17,15 @@ Open http://localhost:5173. On macOS/Linux use `npm` instead of `npm.cmd`. The `
 
 ## Features and API integration
 
-- Destination, dates, guests, property type, nightly price range, sorting, and pagination: `GET /api/search`.
-- Shareable listing routes, photos, amenities, and capacity: `GET /api/listings/:id`.
-- Upcoming reserved dates and explicit availability check: `GET /api/availability/:id/bookings`, `GET /api/availability`.
+- Destination, dates, guests, property type, nightly price range, amenities, sorting, and pagination: `GET /api/search`.
+- Shareable listing routes, enlarged photo viewer, amenities, and capacity: `GET /api/listings/:id`.
+- Interactive month calendar, reserved nights, same-day turnover, and live availability check: `GET /api/availability/:id/bookings`, `GET /api/availability`.
 - Validated booking request with name, email, guest count and dates: `POST /api/bookings`. Server calculates the price and status and checks for conflicts atomically.
 - Booking reference lookup and persistent confirmation URL: `GET /api/bookings/:id`.
 - Cancellation with confirmation dialog: `PATCH /api/bookings/:id/status`.
+- Browser-local saved-stay collection and side-by-side comparison for up to three properties. Only property IDs persist; no guest details are stored.
+- Copy a reference, print an itinerary, and export an all-day `.ics` event. Pending requests are marked tentative.
+- Live price estimate, field validation feedback, offline notice, and return to the previous search results.
 - Loading, empty, unavailable image, network failure, validation, and booking conflict states. Keyboard navigation, labelled inputs, skip link, live status regions, and responsive layouts.
 
 URLs use hash routing, so static hosts need no SPA rewrite rules. Search filters persist in the URL; selected dates and guest count carry into the booking form in the current browser tab. Booking references and guest details are not saved in browser storage.
@@ -66,7 +69,7 @@ The backend currently has no authentication, payment, or specified currency. The
 
 ## Manual user-flow checklist
 
-Validation on 12 November 2026: production build passed; 5 API/validation tests and 6 Chromium browser tests passed, including home, listing and booking layouts at 320px, 768px and 1440px, mobile navigation, and destination searches. `npm audit` reported 0 vulnerabilities. Browser tests use mocked HTTP responses; live backend/MongoDB integration and AWS deployment were not executed on this machine.
+Validation on 13-14 November 2026: 9 unit/API tests and 13 browser tests passed, covering booking, collections, comparison limits, amenities, calendar boundaries, photo viewing, itinerary export, responsive layouts, and automated WCAG checks on the principal screens. The `e2e/` suite uses mocked API responses. The separate live-integration check below also passed with Member 1's real backend and isolated MongoDB. AWS deployment and cloud-load measurements remain Member 3's work.
 
 1. Browse and paginate the seeded stays; search London and combine a property type, guests, prices and sort. Refresh and confirm filters persist.
 2. Try no matching destination, a stopped API, and retry after restoring it.
@@ -79,3 +82,47 @@ Validation on 12 November 2026: production build passed; 5 API/validation tests 
 ## Visual reference
 
 The design is adapted from the user-provided [TravelTrove repository](https://github.com/Rutvigit/TravelTrove), reference commit `3f925a6a902585fa0df9c64c625e01be3cc9810f`. Local photographs in `public/images/` come from that project: `blog2.jpg` (hero), `Destination6.png`, `Destination14.png`, `Destination15.png` (destination searches), and `share.png` (getaway banner). The photo hero, rounded search, coral palette, Poppins typography, destination grid and about section follow the original design. The original registration and hosting-income buttons are replaced with working search and booking navigation appropriate to this backend. Destination images are inspiration; listing photos and prices still come from the API.
+
+## Live integration with a real database
+
+`check-live-integration.mjs` runs the actual frontend in Chromium against Member 1's unchanged Express app and real MongoDB in a temporary local process. It inserts only into its own ephemeral test database and discards that database on completion. The team's normal database is never used.
+
+Requirements: a separate backend checkout with dependencies installed, plus `mongodb-memory-server` installed there using `npm.cmd install --no-save --package-lock=false mongodb-memory-server`. Its first run downloads a MongoDB binary. In the frontend, install Chromium using `npx.cmd playwright install chromium`. Port 5179 must be free.
+
+```powershell
+node scripts/check-live-integration.mjs C:\path\to\separate-checkout\backend
+```
+
+Verified on 13 November 2026 against backend commit `512b4a8`:
+
+- Real seeded listing search, amenity filtering, and serialization.
+- Browser booking persisted with the server-calculated price and reserved-night documents.
+- Overlapping request rejected with HTTP 409.
+- Booking survives reload; cancellation updates MongoDB and releases the reserved nights.
+- Two simultaneous identical requests produce exactly one booking and one conflict.
+
+## Demonstration sequence
+
+1. Start Member 1's backend and MongoDB in its own checkout. Run the frontend on port 5173.
+2. Search London with two guests, combine price/type/amenity filters, and explain the `/api/search` query.
+3. Save stays and compare their rates, capacity and amenities. Refresh to demonstrate browser-local persistence.
+4. Open a property, enlarge a photo, select calendar dates and check availability. Explain why check-out is exclusive and why the server rechecks conflicts.
+5. Submit a request. Show the real Pending status, server total and reference, then print or download the itinerary.
+6. Refresh and reopen the reference. Cancel the booking and verify that its dates become available. Demonstrate invalid inputs or a booking conflict without losing form values.
+7. Resize to mobile and explain retry behaviour, accessibility checks and the limitations below.
+
+## Frontend structure
+
+- `main.js`: routing, discovery, listing details and booking screens.
+- `api.js`: configurable HTTP client and consistent API errors.
+- `collections.js` and `preferences.js`: saved stays, comparison and resilient identifier storage.
+- `calendar.js`: reserved-night display and date selection; the backend remains authoritative.
+- `itinerary.js`: calendar export without guest email.
+- `icons.js`: inline SVG icons, with no icon CDN dependency.
+- CSS: base layout, Airbnb theme and enhanced interaction styles. Run `npm.cmd run format` to format the source.
+
+Saved stays are local to one browser. Account sync, sign-in, payments, email delivery and map coordinates are future improvements requiring backend support. Automated accessibility checks supplement keyboard and visual review; they do not establish full accessibility conformance.
+
+## Continuous checks
+
+`.github/workflows/frontend.yml` runs formatting, unit tests, the production build, and Chromium workflows/accessibility checks on frontend pushes and pull requests. It requires no application secrets and does not deploy anything. Use the Actions tab for the remote run status; local verification does not imply the remote workflow has completed.
