@@ -1,4 +1,10 @@
 /* Shared visual system for discovery, collections and the booking journey. */
+.photo-disclosure {
+  margin: -22px 0 35px;
+  font-size: 10px;
+  color: #6b6460;
+  line-height: 1.8;
+}
 .discovery-controls {
   display: flex;
   justify-content: space-between;

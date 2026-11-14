@@ -22,6 +22,12 @@ export const escapeHtml = (value = "") =>
       ],
   );
 export function imageUrl(value) {
+  if (
+    typeof value === "string" &&
+    /^\/images\/[a-zA-Z0-9_./-]+$/.test(value) &&
+    !value.includes("..")
+  )
+    return value;
   try {
     const url = new URL(value);
     return ["https:", "http:"].includes(url.protocol) ? url.href : "";

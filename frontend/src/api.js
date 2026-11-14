@@ -1,3 +1,5 @@
+import { withPhotoAssets } from "./photos.js";
+
 export class ApiError extends Error {
   constructor(status, error) {
     super(error?.message || "The request could not be completed.");
@@ -31,7 +33,7 @@ export function createApi(
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.success)
       throw new ApiError(response.status, body.error);
-    return body;
+    return { ...body, data: withPhotoAssets(body.data) };
   }
   const query = (params) =>
     new URLSearchParams(

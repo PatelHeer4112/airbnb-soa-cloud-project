@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 const id = "a".repeat(24),
   bookingId = "b".repeat(24);
 const listing = {
@@ -82,7 +82,7 @@ test.beforeEach(async ({ page }) => {
 test("search, inspect, check availability, book, reload, and cancel", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByLabel("Where to?").fill("London");
   await page.getByLabel("Check-in", { exact: true }).fill("2099-01-01");
   await page.getByLabel("Check-out", { exact: true }).fill("2099-01-03");
@@ -110,7 +110,7 @@ test("search, inspect, check availability, book, reload, and cancel", async ({
   await expect(
     page.getByLabel("Booking reference", { exact: true }),
   ).toHaveValue(bookingId);
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByText("Pending", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Cancel this booking" }).click();
   await page.getByRole("button", { name: "Yes, cancel booking" }).click();
@@ -130,7 +130,7 @@ test("empty results and unavailable service provide recovery", async ({
       },
     }),
   );
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.getByText("No stays found. A fresh start?")).toBeVisible();
   await page.route("**/api/search?**", (route) => route.abort());
   await page.getByRole("button", { name: "Clear filters" }).click();
@@ -141,7 +141,7 @@ test("mobile layout fits viewport and backend errors are visible", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Quiet garden cottage" }),
   ).toBeVisible();
@@ -154,7 +154,7 @@ test("mobile layout fits viewport and backend errors are visible", async ({
     path: "test-results/mobile-home.png",
     fullPage: true,
   });
-  await page.goto(`/#/listing/${id}`);
+  await page.goto(`/#/listing/${id}`, { waitUntil: "domcontentloaded" });
   await page.getByLabel("Check-in", { exact: true }).fill("2099-01-01");
   await page.getByLabel("Check-out", { exact: true }).fill("2099-02-10");
   await page.getByRole("button", { name: "Check availability" }).click();
@@ -175,7 +175,7 @@ test("booking conflict keeps guest input and explains the failure", async ({
       },
     }),
   );
-  await page.goto(`/#/listing/${id}`);
+  await page.goto(`/#/listing/${id}`, { waitUntil: "domcontentloaded" });
   await page.getByLabel("Check-in", { exact: true }).fill("2099-01-01");
   await page.getByLabel("Check-out", { exact: true }).fill("2099-01-03");
   await page.getByLabel("Guests", { exact: true }).fill("2");
@@ -193,7 +193,7 @@ test("Airbnb navigation and destination cards work on mobile", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Open navigation" }).click();
   await expect(
     page.getByRole("button", { name: "Close navigation" }),
@@ -209,7 +209,7 @@ test("Airbnb navigation and destination cards work on mobile", async ({
     .click();
   await expect(page.getByLabel("Where to?")).toHaveValue("London");
   await expect(page).toHaveURL(/location=London/);
-  await page.goto(`/#/listing/${id}`);
+  await page.goto(`/#/listing/${id}`, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Open navigation" }).click();
   await page.keyboard.press("Escape");
   await expect(
@@ -228,7 +228,7 @@ test("home, listing and booking layouts fit narrow, tablet and desktop screens",
       `/#/booking/${bookingId}`,
       "/#/host",
     ]) {
-      await page.goto(path);
+      await page.goto(path, { waitUntil: "domcontentloaded" });
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       expect(
         await page.evaluate(

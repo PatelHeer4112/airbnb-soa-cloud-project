@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -74,7 +74,7 @@ test.beforeEach(async ({ page }) => {
 test("saved stays survive refresh and can be removed without storing personal details", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page
     .getByRole("button", { name: `Save ${titles[0]}`, exact: true })
     .click();
@@ -88,9 +88,9 @@ test("saved stays survive refresh and can be removed without storing personal de
   await expect(
     page.getByRole("button", { name: `Save ${titles[0]}` }),
   ).toHaveAttribute("aria-pressed", "true");
-  await page.goto("/#/saved");
+  await page.goto("/#/saved", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: titles[0] })).toBeVisible();
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: titles[0] })).toBeVisible();
   const state = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("airbnb-stay-preferences-v1")),
@@ -105,7 +105,7 @@ test("saved stays survive refresh and can be removed without storing personal de
 test("comparison limits selections and renders a real side-by-side shortlist", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   for (const title of titles.slice(0, 3))
     await page
       .getByRole("button", { name: `Compare ${title}`, exact: true })
@@ -137,7 +137,7 @@ test("comparison limits selections and renders a real side-by-side shortlist", a
 test("amenity filters use backend field names and restore after refresh", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Make room for your must-haves").click();
   const request = page.waitForRequest(
     (req) =>
@@ -147,7 +147,7 @@ test("amenity filters use backend field names and restore after refresh", async 
   await page.getByRole("checkbox", { name: "Wi-Fi", exact: true }).check();
   await request;
   await expect(page).toHaveURL(/amenities=Wi-Fi/);
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("checkbox", { name: "Wi-Fi", exact: true }),
   ).toBeChecked();
@@ -156,7 +156,7 @@ test("amenity filters use backend field names and restore after refresh", async 
 test("calendar supports reserved-day checkout and blocks stays across occupied nights", async ({
   page,
 }) => {
-  await page.goto(`/#/listing/${ids[0]}`);
+  await page.goto(`/#/listing/${ids[0]}`, { waitUntil: "domcontentloaded" });
   await expect(page.locator("#booking-calendar")).not.toBeEmpty();
   // Move to the month containing check-in, even at a month boundary.
   const targetMonth = day(2).slice(0, 7);
@@ -184,12 +184,12 @@ test("calendar supports reserved-day checkout and blocks stays across occupied n
 });
 
 test("photo viewer and calendar itinerary export work", async ({ page }) => {
-  await page.goto(`/#/listing/${ids[0]}`);
+  await page.goto(`/#/listing/${ids[0]}`, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Open property photo 1" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
-  await page.goto(`/#/booking/${ids[1]}`);
+  await page.goto(`/#/booking/${ids[1]}`, { waitUntil: "domcontentloaded" });
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Add to calendar" }).click();
   const download = await downloadPromise;
@@ -205,7 +205,7 @@ test("new collection routes work on mobile without page errors", async ({
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page
     .getByRole("button", { name: `Save ${titles[0]}`, exact: true })
     .click();
@@ -218,7 +218,7 @@ test("new collection routes work on mobile without page errors", async ({
     path: "test-results/premium-desktop.png",
     fullPage: true,
   });
-  await page.goto("/#/saved");
+  await page.goto("/#/saved", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: titles[0] })).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -233,7 +233,7 @@ test("primary screens pass automated WCAG accessibility checks", async ({
     "/#/saved",
     "/#/compare",
   ]) {
-    await page.goto(path);
+    await page.goto(path, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     if (path === "/") {
       await expect(

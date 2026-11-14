@@ -1,6 +1,7 @@
 import { preferences } from "./preferences.js";
 import { escapeHtml as e, imageUrl } from "./validation.js";
 import { icon } from "./icons.js";
+import { photoAttributes } from "./photos.js";
 
 const price = (value) =>
   Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -9,7 +10,7 @@ export const selectionButton = (key, listing, cls = "") =>
 
 export function stayCard(listing) {
   const l = listing;
-  return `<article class="stay-card"><div class="card-visual"><a href="#/listing/${e(l._id)}" tabindex="-1" aria-hidden="true"><div class="card-image"><img src="${e(imageUrl(l.imageUrls?.[0]) || "/images/property-placeholder.svg")}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="type-pill">${e(l.propertyType)}</span></div></a>${selectionButton("saved", l, "card-save")}</div><a class="card-content" href="#/listing/${e(l._id)}"><div class="card-location"><strong>${e(l.city)}, ${e(l.country)}</strong><span>${icon("star")} ${e(l.rating)}</span></div><h3>${e(l.title)}</h3><p>${e(l.maxGuests)} guests &middot; ${e(l.bedrooms)} bedrooms &middot; ${e(l.bathrooms)} baths</p><div class="card-price"><strong>${price(l.pricePerNight)}</strong><span> / night</span><span class="card-arrow">${icon("arrow")}</span></div></a><div class="card-bottom">${selectionButton("compare", l)}<span>View stay ${icon("arrow")}</span></div></article>`;
+  return `<article class="stay-card"><div class="card-visual"><a href="#/listing/${e(l._id)}" tabindex="-1" aria-hidden="true"><div class="card-image"><img src="${e(imageUrl(l.imageUrls?.[0]) || "/images/property-placeholder.svg")}" ${photoAttributes(l.imageUrls?.[0])} alt="" loading="lazy" referrerpolicy="no-referrer"><span class="type-pill">${e(l.propertyType)}</span></div></a>${selectionButton("saved", l, "card-save")}</div><a class="card-content" href="#/listing/${e(l._id)}"><div class="card-location"><strong>${e(l.city)}, ${e(l.country)}</strong><span>${icon("star")} ${e(l.rating)}</span></div><h3>${e(l.title)}</h3><p>${e(l.maxGuests)} guests &middot; ${e(l.bedrooms)} bedrooms &middot; ${e(l.bathrooms)} baths</p><div class="card-price"><strong>${price(l.pricePerNight)}</strong><span> / night</span><span class="card-arrow">${icon("arrow")}</span></div></a><div class="card-bottom">${selectionButton("compare", l)}<span>View stay ${icon("arrow")}</span></div></article>`;
 }
 
 export function toast(message) {

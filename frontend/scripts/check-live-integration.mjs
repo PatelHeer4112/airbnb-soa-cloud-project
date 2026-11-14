@@ -64,7 +64,9 @@ try {
     new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
   const checkIn = shift(5),
     checkOut = shift(7);
-  await page.goto("http://127.0.0.1:5179/#/host");
+  await page.goto("http://127.0.0.1:5179/#/host", {
+    waitUntil: "domcontentloaded",
+  });
   await page
     .getByLabel("Listing title", { exact: true })
     .fill("Kyoto integration retreat");
@@ -87,7 +89,7 @@ try {
     await Listing.countDocuments({ city: "Kyoto", country: "Japan" }),
     1,
   );
-  await page.goto("http://127.0.0.1:5179");
+  await page.goto("http://127.0.0.1:5179", { waitUntil: "domcontentloaded" });
   await page
     .getByRole("button", { name: /Explore all .* destinations/ })
     .waitFor();
@@ -103,7 +105,7 @@ try {
   console.log(
     "PASS real browser publishes a listing in a new city; MongoDB, discovery and search reflect it",
   );
-  await page.goto("http://127.0.0.1:5179");
+  await page.goto("http://127.0.0.1:5179", { waitUntil: "domcontentloaded" });
   await page.getByLabel("Where to?").fill("London");
   await page.getByRole("button", { name: "Search stays" }).click();
   await page
@@ -145,7 +147,7 @@ try {
     (error) => error.status === 409 && error.code === "BOOKING_CONFLICT",
   );
   console.log("PASS real overlapping booking rejected with HTTP 409");
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByText("Pending", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Cancel this booking" }).click();
   await page.getByRole("button", { name: "Yes, cancel booking" }).click();

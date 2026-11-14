@@ -75,11 +75,11 @@ The check starts a temporary server on a free local port and closes it afterward
 
 ## Limitations
 
-The backend currently has no authentication, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded property photos are placeholders; the homepage bundles the original TravelTrove photography locally and typography uses Google Fonts with local fallback fonts.
+The backend currently has no authentication, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded API image URLs are placeholders, with known samples rendered using the bundled illustrative HD photo library; the homepage bundles the original TravelTrove photography locally and typography uses Google Fonts with local fallback fonts.
 
 ## Manual user-flow checklist
 
-Validation on 13-14 November 2026: 12 unit/API tests and 15 browser tests passed, covering booking, collections, comparison limits, amenities, calendar boundaries, photo viewing, itinerary export, responsive layouts, and automated WCAG checks on the principal screens. The `e2e/` suite uses mocked API responses. The separate live-integration check below also passed with Member 1's real backend and isolated MongoDB. AWS deployment and cloud-load measurements remain Member 3's work.
+Validation on 13-14 November 2026: 15 unit/API tests and 16 browser tests passed, covering booking, collections, comparison limits, amenities, calendar boundaries, photo viewing, itinerary export, responsive layouts, and automated WCAG checks on the principal screens. The `e2e/` suite uses mocked API responses. The separate live-integration check below also passed with Member 1's real backend and isolated MongoDB. AWS deployment and cloud-load measurements remain Member 3's work.
 
 1. Browse and paginate the seeded stays; search London and combine a property type, guests, prices and sort. Refresh and confirm filters persist.
 2. Try no matching destination, a stopped API, and retry after restoring it.
@@ -152,3 +152,20 @@ For a production-scale inventory, Member 1 should expose server-side destination
 ## Continuous checks
 
 `.github/workflows/frontend.yml` runs formatting, unit tests, the production build, and Chromium workflows/accessibility checks on frontend pushes and pull requests. It requires no application secrets and does not deploy anything. Use the Actions tab for the remote run status; local verification does not imply the remote workflow has completed.
+
+## HD sample photography
+
+All 20 original sample stays now have distinct cover photography and two-photo galleries. The frontend replaces only the known random `picsum.photos/seed/...` URLs supplied by Member 1's sample dataset. Listing data, IDs, prices, availability and bookings still come from the backend API. Host-supplied photos and unknown image URLs are preserved; newly published properties without photos keep the neutral placeholder.
+
+The 20 bundled source photographs each have a 1920-pixel-wide WebP version and a 640-pixel responsive version. Cards and destination tiles use `srcset`/`sizes`; gallery enlargement uses the larger asset when appropriate. Images are local assets, so the sample galleries need no external image service at runtime. Credits, source URLs and license references are recorded in `public/images/stays/credits.json`.
+
+These are illustrative accommodation photographs, not verified photos of the specific sample addresses. The listing detail screen labels them accordingly. The raw backend response remains unchanged; `photos.js` performs the display-only mapping in the frontend API client, including nested booking listing summaries.
+
+To reproduce the downloads or generate a visual contact sheet:
+
+```powershell
+node scripts/download-stay-photos.mjs
+node scripts/review-stay-photos.mjs
+```
+
+The first command uses the public Unsplash image URLs recorded in the script and requires internet access. The review command writes `test-results/photo-contact-sheet.png`. Tests check that every sample album resolves, custom images remain untouched, and actual local photos decode in the browser and enlarged gallery.

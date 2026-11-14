@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 import AxeBuilder from "@axe-core/playwright";
 const base = {
   _id: "a".repeat(24),
@@ -48,7 +48,7 @@ test("discovery fetches subsequent inventory pages instead of limiting places to
       },
     });
   });
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.locator("#inventory-summary")).toContainText(
     "51 destinations",
   );
@@ -110,7 +110,7 @@ test("publishing in a new city makes the stay discoverable and searchable withou
       },
     });
   });
-  await page.goto("/#/host");
+  await page.goto("/#/host", { waitUntil: "domcontentloaded" });
   await page
     .getByLabel("Listing title", { exact: true })
     .fill("Kyoto garden retreat");
@@ -134,7 +134,7 @@ test("publishing in a new city makes the stay discoverable and searchable withou
   expect(posted.pricePerNight).toBe(95);
   expect(posted.maxGuests).toBe(2);
   expect(posted.amenities).toEqual(["Wi-Fi", "Sauna"]);
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("button", { name: "Explore Kyoto, Japan", exact: true }),
   ).toBeVisible();
@@ -146,7 +146,7 @@ test("publishing in a new city makes the stay discoverable and searchable withou
   await expect(
     page.getByRole("heading", { name: "Kyoto garden retreat", exact: true }),
   ).toBeVisible();
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByLabel("Country", { exact: true })).toHaveValue(
     "Japan",
   );

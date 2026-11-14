@@ -1,5 +1,6 @@
 import { escapeHtml as e, imageUrl } from "./validation.js";
 import { icon } from "./icons.js";
+import { photoAttributes } from "./photos.js";
 
 export async function fetchInventory(api, signal) {
   const first = await api.listings(1, 50, signal);
@@ -76,7 +77,7 @@ export function mountDiscovery({
     grid.innerHTML = places
       .map(
         (d, index) =>
-          `<button class="destination-card" type="button" data-destination-index="${index}" aria-label="Explore ${e(d.city)}, ${e(d.country)}"><img src="${e(imageUrl(d.image) || "/images/property-placeholder.svg")}" alt="" loading="lazy"><span class="destination-overlay"><small>${e(d.country)}</small><strong>${e(d.city)}</strong><span>${d.count} ${d.count === 1 ? "stay" : "stays"} &middot; from ${Number(d.minPrice).toLocaleString()} / night</span></span><span class="destination-arrow" aria-hidden="true">&#8599;</span></button>`,
+          `<button class="destination-card" type="button" data-destination-index="${index}" aria-label="Explore ${e(d.city)}, ${e(d.country)}"><img src="${e(imageUrl(d.image) || "/images/property-placeholder.svg")}" alt="" ${photoAttributes(d.image, "(max-width: 760px) 90vw, 33vw")} loading="lazy"><span class="destination-overlay"><small>${e(d.country)}</small><strong>${e(d.city)}</strong><span>${d.count} ${d.count === 1 ? "stay" : "stays"} &middot; from ${Number(d.minPrice).toLocaleString()} / night</span></span><span class="destination-arrow" aria-hidden="true">&#8599;</span></button>`,
       )
       .join("");
     root.querySelector("#more-destinations").hidden =
