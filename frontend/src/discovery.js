@@ -128,8 +128,62 @@ export function mountDiscovery({
     (filters.get("amenities") || "").split(",").filter(Boolean),
   );
   let expanded = false,
-    facets;
+    facets,
+    inventory = [];
   let pending;
+  function updatePriceGuidance() {
+    const hint = root.querySelector("#price-guidance");
+    if (!hint || !facets) return;
+    const text = root.querySelector('#search [name="location"]').value.trim();
+    const country = root.querySelector('[name="country"]').value;
+    const destination = resolveDestination(text, facets, country);
+    const query = (
+      destination && !destination.ambiguous ? destination.location : text
+    ).toLowerCase();
+    const city = root.querySelector('#search [name="city"]').value;
+    const prices = inventory
+      .filter(
+        (listing) =>
+          (!country ||
+            listing.country.toLowerCase() === country.toLowerCase()) &&
+          (!city || listing.city.toLowerCase() === city.toLowerCase()) &&
+          (!query ||
+            [
+              listing.city,
+              listing.country,
+              listing.state,
+              listing.location,
+            ].some((value) =>
+              String(value || "")
+                .toLowerCase()
+                .includes(query),
+            )),
+      )
+      .map((listing) => Number(listing.pricePerNight))
+      .filter(Number.isFinite);
+    if (!prices.length) {
+      hint.textContent =
+        "No listings for this destination. Try another city or country.";
+      return;
+    }
+    const min = Math.min(...prices),
+      max = Math.max(...prices);
+    const minimum = root.querySelector('[name="minPrice"]').value;
+    const maximum = root.querySelector('[name="maxPrice"]').value;
+    hint.textContent = `Listed nightly rates for this destination: ${min.toLocaleString()}–${max.toLocaleString()} (before dates and other filters). Prices use the listing’s units; no currency conversion is applied.`;
+    if (
+      (minimum !== "" && Number(minimum) > max) ||
+      (maximum !== "" && Number(maximum) < min)
+    )
+      hint.textContent +=
+        " Your price limits exclude every listed stay here. Adjust them or remove price limits.";
+  }
+  root.addEventListener("input", updatePriceGuidance, {
+    signal: controller.signal,
+  });
+  root.addEventListener("change", updatePriceGuidance, {
+    signal: controller.signal,
+  });
   const grid = root.querySelector("#destination-inventory");
   const options = root.querySelector(".amenity-options");
   function drawDestinations() {
@@ -188,6 +242,7 @@ export function mountDiscovery({
     try {
       const listings = await fetchInventory(api, controller.signal);
       if (!root.isConnected) return;
+      inventory = listings;
       facets = inventoryFacets(listings);
       drawDestinations();
       root.querySelector("#destination-suggestions").innerHTML =
@@ -230,6 +285,7 @@ export function mountDiscovery({
           .map((c) => `<option value="${e(c)}">${e(c)}</option>`)
           .join("");
       country.value = currentCountry;
+      updatePriceGuidance();
     } catch (error) {
       if (error.name !== "AbortError" && root.isConnected)
         root.querySelector("#inventory-summary").textContent =

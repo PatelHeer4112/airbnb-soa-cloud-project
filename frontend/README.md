@@ -173,6 +173,8 @@ The first command uses the public Unsplash image URLs recorded in the script and
 
 ## Integration bug regressions
 
+Filter recovery: the price hint shows current destination listing rates before availability and other filters. For Barcelona's sample inventory these are 150–420, so 10000–20000 correctly returns no matches. Use Remove price limits to preserve destination, dates, guests and other selections while removing the price restriction. Changing the Country dropdown intentionally clears the previous city/free-text destination to prevent contradictory searches. Duplicate city/location filter chips are collapsed. `e2e/filter-recovery.spec.js` verifies these behaviours and an actual matching price range.
+
 `tests/bug-regressions.test.js` covers request timeout/cancellation composition and case-insensitive destination grouping. `e2e/bug-regressions.spec.js` covers keyboard skip navigation, editing an automatically selected destination, returning to the correct results page, responsive-image fallback loading, and removing deleted saved properties while retaining selections during temporary service failures. These tests initially reproduced the defects before the fixes.
 
 Manual checks: use Tab/Enter on Skip to content; select London then type Paris; open a stay from results page 2 and return; block a responsive image request to see the placeholder; restart a temporary demo database and remove old 404 selections using Remove unavailable stays. A temporary API outage should offer retry and keep the saved selections. Requests remain cancellable when navigating and time out after 15 seconds with a retryable message.
