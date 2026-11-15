@@ -1185,6 +1185,24 @@ nav .nav-booking {
 .compare-rail .primary .icon {
   width: 16px;
 }
+.compare-clear {
+  flex-shrink: 0;
+  width: 44px;
+  min-height: 44px;
+  border: 1px solid #787780;
+  border-radius: 50%;
+  background: transparent;
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
+}
+.compare-clear:hover {
+  background: #41434e;
+}
+.compare-clear:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
 .toast {
   position: fixed;
   top: 20px;

@@ -134,6 +134,56 @@ test("comparison limits selections and renders a real side-by-side shortlist", a
   ).toBe(true);
 });
 
+for (const width of [320, 1440])
+  test(`comparison can be cleared permanently without removing saved stays at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await page
+      .getByRole("button", { name: `Save ${titles[0]}`, exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: `Compare ${titles[0]}`, exact: true })
+      .click();
+    await expect(page.locator("#compare-rail")).toBeVisible();
+    if (width === 320)
+      await page.getByRole("button", { name: "Open navigation" }).click();
+    await page.getByRole("link", { name: "Find a booking" }).click();
+    await expect(page.locator("#compare-rail")).toBeHidden();
+    await page.getByRole("link", { name: "Airbnb home" }).click();
+    await expect(page.locator("#compare-rail")).toBeVisible();
+    await page.route("**/api/search?**", (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          data: [],
+          meta: { total: 0, page: 1, totalPages: 0 },
+        },
+      }),
+    );
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(
+      page.getByRole("heading", { name: "No stays found. A fresh start?" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page
+      .getByRole("button", { name: "Clear comparison", exact: true })
+      .click();
+    await expect(page.locator("#compare-rail")).toBeHidden();
+    await page.reload();
+    await expect(page.locator("#compare-rail")).toBeHidden();
+    expect(
+      await page.evaluate(() =>
+        JSON.parse(localStorage.getItem("airbnb-stay-preferences-v1")),
+      ),
+    ).toEqual({ saved: [ids[0]], compare: [] });
+  });
+
 test("amenity filters use backend field names and clear after homepage refresh", async ({
   page,
 }) => {

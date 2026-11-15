@@ -37,8 +37,11 @@ export function syncSelections() {
     );
   const count = preferences.ids("compare").length;
   const rail = document.querySelector("#compare-rail");
-  rail.hidden = count === 0 || location.hash.startsWith("#/compare");
-  rail.innerHTML = `<span>${icon("compare")}<strong>${count} of 3 stays</strong><span>Find your best fit.</span></span><a class="primary" href="#/compare">Compare stays ${icon("arrow")}</a>`;
+  const path = location.hash.slice(1).split("?")[0];
+  const browsing =
+    ["", "/", "/saved"].includes(path) || path.startsWith("/listing/");
+  rail.hidden = count === 0 || !browsing;
+  rail.innerHTML = `<span>${icon("compare")}<strong>${count} of 3 stays</strong><span>Find your best fit.</span></span><a class="primary" href="#/compare">Compare stays ${icon("arrow")}</a><button type="button" class="compare-clear" id="clear-comparison" aria-label="Clear comparison" title="Clear comparison">&times;</button>`;
 }
 
 export function bindCollections() {
@@ -47,6 +50,17 @@ export function bindCollections() {
     '<div id="toast" class="toast" role="status" aria-live="polite"></div><aside id="compare-rail" class="compare-rail" aria-label="Stay comparison" hidden></aside><div id="offline-notice" class="offline-notice" role="status" hidden>You are offline. Reconnect to search or manage a booking.</div>',
   );
   document.addEventListener("click", (event) => {
+    if (event.target.closest("#clear-comparison")) {
+      for (const id of preferences.ids("compare"))
+        preferences.toggle("compare", id);
+      syncSelections();
+      toast("Comparison cleared.");
+      document.querySelector("main").focus({ preventScroll: true });
+      window.dispatchEvent(
+        new CustomEvent("stay-selection-change", { detail: "compare" }),
+      );
+      return;
+    }
     const button = event.target.closest("[data-selection]");
     if (!button) return;
     try {
