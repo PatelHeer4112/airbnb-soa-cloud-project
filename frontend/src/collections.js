@@ -92,8 +92,13 @@ export async function collectionPage(kind, api, main, isCurrent) {
     .filter((r) => r.status === "fulfilled")
     .map((r) => r.value.data);
   const failed = results.filter((r) => r.status === "rejected");
+  const missing = ids.filter(
+    (id, index) =>
+      results[index].status === "rejected" &&
+      results[index].reason?.status === 404,
+  );
   const warning = failed.length
-    ? `<div class="notice" role="alert">${failed.length} ${failed.length === 1 ? "stay could" : "stays could"} not be loaded. Your selections are kept. <button type="button" class="plain" id="retry-collection">Try again</button></div>`
+    ? `<div class="notice" role="alert">${failed.length} ${failed.length === 1 ? "stay could" : "stays could"} not be loaded. Your selections are kept. <button type="button" class="plain" id="retry-collection">Try again</button>${missing.length ? '<button type="button" class="plain" id="remove-unavailable">Remove unavailable stays</button>' : ""}</div>`
     : "";
   if (!compare)
     target.innerHTML =
@@ -113,4 +118,14 @@ export async function collectionPage(kind, api, main, isCurrent) {
       collectionPage(kind, api, main, isCurrent),
     );
   syncSelections();
+  document
+    .querySelector("#remove-unavailable")
+    ?.addEventListener("click", () => {
+      const key = compare ? "compare" : "saved";
+      for (const id of missing)
+        if (preferences.has(key, id)) preferences.toggle(key, id);
+      syncSelections();
+      toast("Unavailable stays removed.");
+      collectionPage(kind, api, main, isCurrent);
+    });
 }

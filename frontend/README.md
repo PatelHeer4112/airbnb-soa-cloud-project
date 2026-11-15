@@ -4,15 +4,15 @@ Responsive Airbnb accommodation UI, built with JavaScript, CSS, and Vite. Uses t
 
 ## Run locally
 
-For a quick manual demonstration without installing MongoDB as a Windows service, run the real backend from its separate checkout with a temporary database:
+On this integration branch, the backend is included in the sibling `../backend/` folder. For a manual demonstration without a MongoDB Windows service, install the optional demo dependency there and run:
 
 ```powershell
-npm.cmd run demo:backend -- "C:\Users\HP\OneDrive\Desktop\airbnb-cloud-project\member1-api-check\backend"
+npm.cmd run demo:backend -- "../backend"
 ```
 
 Keep that terminal open. In another terminal, run `npm.cmd run dev` from this frontend folder, or use the existing server at http://localhost:5173 if it is already running. The demo API is http://localhost:5000 and `/health` should report `database: connected`. This uses Member 1's actual backend code and 20 seed listings, not mocked frontend data. New stays and bookings survive browser refresh but are discarded when the demo-backend process stops. It requires `mongodb-memory-server` in the separate backend checkout, as described under live integration below. Use the normal MongoDB setup below for persistent data.
 
-Requires Node.js 20.19+ or 22.12+. The backend is maintained separately on [feature/member1-backend](https://github.com/PatelHeer4112/airbnb-soa-cloud-project/tree/feature/member1-backend). Start MongoDB and follow that branch's backend/README.md in a separate checkout to install, seed, and start the API on port 5000. This frontend branch intentionally contains no backend source. In a second terminal:
+Requires Node.js 20.19+ or 22.12+. Start MongoDB and follow [the included backend setup](../backend/README.md) to install, seed, and start the API on port 5000. The original backend is maintained on [feature/member1-backend](https://github.com/PatelHeer4112/airbnb-soa-cloud-project/tree/feature/member1-backend); the updated manager API is on `integration/frontend-backend`, while the frontend branch contains frontend files only. In a second terminal:
 
 ```powershell
 cd frontend
@@ -71,11 +71,11 @@ To repeat against a separate backend checkout, install that backend's dependenci
 node scripts/check-backend-contract.mjs C:\path\to\separate-checkout\backend
 ```
 
-The check starts a temporary server on a free local port and closes it afterward. It does not connect to, seed, or modify MongoDB. Backend source stays out of this frontend branch. For browser use, start Member 1's real backend with MongoDB and set `VITE_API_URL` to its origin; the backend's default CORS configuration already permits `http://localhost:5173`.
+The check starts a temporary server on a free local port and closes it afterward. It does not connect to, seed, or modify MongoDB. This integration branch includes the backend in `../backend/`; the original frontend-only member branch remains separate. For browser use, start the real backend with MongoDB and set `VITE_API_URL` to its origin; default CORS already permits `http://localhost:5173`.
 
 ## Limitations
 
-The backend currently has no authentication, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded API image URLs are placeholders, with known samples rendered using the bundled illustrative HD photo library; the homepage bundles the original TravelTrove photography locally and typography uses Google Fonts with local fallback fonts.
+The backend protects management and booking confirmation with a private manager code, but has no guest/host accounts, payment, or specified currency. The UI reports real Pending/Confirmed/Cancelled status and does not claim a payment or email was sent. Prices use the API's numerical units without adding a currency symbol. Public deployment needs an agreed access-control plan; a booking reference currently retrieves guest details. Seeded API image URLs are placeholders, with known samples rendered using the bundled illustrative HD photo library; the homepage bundles the original TravelTrove photography locally and typography uses Google Fonts with local fallback fonts.
 
 ## Manual user-flow checklist
 
@@ -95,7 +95,7 @@ The design is adapted from the user-provided [TravelTrove repository](https://gi
 
 ## Live integration with a real database
 
-`check-live-integration.mjs` runs the actual frontend in Chromium against Member 1's unchanged Express app and real MongoDB in a temporary local process. It inserts only into its own ephemeral test database and discards that database on completion. The team's normal database is never used.
+`check-live-integration.mjs` runs the actual frontend in Chromium against the integrated Express app based on Member 1's services and real MongoDB in a temporary local process. It inserts only into its own ephemeral test database and discards that database on completion. The team's normal database is never used.
 
 Requirements: a separate backend checkout with dependencies installed, plus `mongodb-memory-server` installed there using `npm.cmd install --no-save --package-lock=false mongodb-memory-server`. Its first run downloads a MongoDB binary. In the frontend, install Chromium using `npx.cmd playwright install chromium`. Port 5179 must be free.
 
@@ -114,17 +114,18 @@ Verified on 13 November 2026 against backend commit `512b4a8`:
 
 ## Demonstration sequence
 
-1. Start Member 1's backend and MongoDB in its own checkout. Run the frontend on port 5173.
+1. Start the backend from `integration/frontend-backend` and MongoDB, or use the temporary demo backend. Run the frontend on port 5173. Member 1's original API still supports guest workflows; the new booking manager requires the updated integration backend.
 2. Search London with two guests, combine price/type/amenity filters, and explain the `/api/search` query.
 3. Save stays and compare their rates, capacity and amenities. Refresh to demonstrate browser-local persistence.
 4. Open a property, enlarge a photo, select calendar dates and check availability. Explain why check-out is exclusive and why the server rechecks conflicts.
 5. Submit a request. Show the real Pending status, server total and reference, then print or download the itinerary.
-6. Refresh and reopen the reference. Cancel the booking and verify that its dates become available. Demonstrate invalid inputs or a booking conflict without losing form values.
+6. Open the footer's Manage bookings link in another tab, enter the management code, and accept the Pending request. On the guest booking page press Refresh booking status and verify Confirmed. Submit a separate request, decline it in the manager, and verify Cancelled and released dates. Guest cancellation remains available. Demonstrate invalid inputs or a booking conflict without losing form values.
 7. Resize to mobile and explain retry behaviour, accessibility checks and the limitations below.
 
 ## Frontend structure
 
 - `main.js`: routing, discovery, listing details and booking screens.
+- `management.js`: protected booking review, decisions, status filters and pagination; credentials stay in memory.
 - `api.js`: configurable HTTP client and consistent API errors.
 - `collections.js` and `preferences.js`: saved stays, comparison and resilient identifier storage.
 - `calendar.js`: reserved-night display and date selection; the backend remains authoritative.
@@ -169,3 +170,28 @@ node scripts/review-stay-photos.mjs
 ```
 
 The first command uses the public Unsplash image URLs recorded in the script and requires internet access. The review command writes `test-results/photo-contact-sheet.png`. Tests check that every sample album resolves, custom images remain untouched, and actual local photos decode in the browser and enlarged gallery.
+
+## Integration bug regressions
+
+`tests/bug-regressions.test.js` covers request timeout/cancellation composition and case-insensitive destination grouping. `e2e/bug-regressions.spec.js` covers keyboard skip navigation, editing an automatically selected destination, returning to the correct results page, responsive-image fallback loading, and removing deleted saved properties while retaining selections during temporary service failures. These tests initially reproduced the defects before the fixes.
+
+Manual checks: use Tab/Enter on Skip to content; select London then type Paris; open a stay from results page 2 and return; block a responsive image request to see the placeholder; restart a temporary demo database and remove old 404 selections using Remove unavailable stays. A temporary API outage should offer retry and keep the saved selections. Requests remain cancellable when navigating and time out after 15 seconds with a retryable message.
+
+## Destination country and manager acceptance verification
+
+Use the updated `integration/frontend-backend` backend for this feature. The frontend branch intentionally contains no backend folder.
+
+1. For the temporary demo, run `npm.cmd run demo:backend -- ../backend` from frontend and keep its terminal open. It prints a private random management code. The demo uses real API services and a temporary MongoDB database; stopping it discards demo data.
+2. Start the frontend in another terminal with `npm.cmd run dev`. If port 5173 is occupied, open the existing server or stop that server before restarting. Open http://localhost:5173.
+3. Type Paris in Where to? and press Search stays. Country must become France; inspect `/api/search` for `city=Paris` and `country=France`. Try London, a country name, and a newly published city. The resolver waits for inventory before searching. For duplicate city names choose the explicit City, Country suggestion or select a country. Unknown locations are not assigned guessed countries.
+4. Book future available dates using sample guest details. Save the reference and confirm Pending. Keep this guest tab open.
+5. Open http://localhost:5173/#/manage in another tab. Enter the private code from the demo terminal. An incorrect code must be rejected. Pending requests show guest, property, dates, price and reference.
+6. Accept the request and confirm the decision. Select Confirmed to see it. In the guest tab choose Refresh booking status: expect Confirmed from the API, including after a browser reload.
+7. Submit a different request and decline it. Its guest page must show Cancelled; check those dates are available again. Cancelled requests cannot be accepted later. Cancelling a confirmed stay also releases nights.
+8. Test status filtering, pagination, Refresh requests, mobile layout, and sign-out. Reloading the whole browser page requires the management code again. It is never saved in browser storage.
+
+For a persistent backend set a private random `ADMIN_API_TOKEN` of at least 32 characters in backend/.env and restart it. Never commit it, share it with guests, or set it as a VITE variable. The dashboard is one project manager, not a complete host-account system. Guest lookup and cancellation remain reference-based; publishing remains public. Real accounts/host ownership, payments, refunds, messages, reviews, email delivery and automatic request expiry are not implemented.
+
+Tests: `tests/search-resolution.test.js` covers inventory-based city/country/area resolution and ambiguous cities; `e2e/management.spec.js` covers country selection, authorization UI, decisions, guest refresh, accessibility and credential storage. The live-integration script exercises real manager acceptance/decline, protected confirmation, MongoDB status and reserved-night release. Backend admin tests cover authorization, disabled configuration, pagination, filtering and transitions.
+
+If OneDrive reparse points cause test tools to discover only a subset of files, run `node scripts/prepare-local-verification.mjs`. It writes a physical copy to the printed temporary path, excluding environment files except examples, and links installed dependencies. Run checks there; its browser server uses port 5181. This is verification only and does not alter your Git checkout.

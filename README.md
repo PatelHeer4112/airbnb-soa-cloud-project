@@ -4,7 +4,9 @@ Responsive Airbnb-inspired accommodation search and booking interface, compatibl
 
 Features include saved stays, side-by-side comparison, amenity filters, reserved-date calendar, photo viewer, live booking estimates, and printable/calendar itineraries.
 
-This branch contains only the frontend and its documentation. Backend source and setup instructions are maintained on [feature/member1-backend](https://github.com/PatelHeer4112/airbnb-soa-cloud-project/tree/feature/member1-backend).
+This branch contains only the frontend and its documentation. Use the updated backend from [integration/frontend-backend](https://github.com/PatelHeer4112/airbnb-soa-cloud-project/tree/integration/frontend-backend) for protected booking acceptance and decline. Member 1's original branch still supports guest search/booking/cancellation but does not include the new manager endpoints.
+
+Search automatically selects a recognised destination's country from API inventory. The footer's Manage bookings page lets an authorized project manager accept or decline requests using the private backend access code. See [the detailed setup and demonstration checks](frontend/README.md#destination-country-and-manager-acceptance-verification). No backend folder is included on this branch.
 
 ## Run the frontend
 

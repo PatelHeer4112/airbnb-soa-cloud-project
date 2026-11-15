@@ -3,6 +3,7 @@
 import { createRequire } from "node:module";
 import { resolve, join } from "node:path";
 import assert from "node:assert/strict";
+import { randomBytes } from "node:crypto";
 
 if (!process.argv[2])
   throw Error("Usage: npm run demo:backend -- <separate-backend-directory>");
@@ -14,6 +15,8 @@ try {
   mongo = await MongoMemoryServer.create({
     instance: { dbName: "airbnb_manual_demo_test" },
   });
+  process.env.ADMIN_API_TOKEN =
+    process.env.ADMIN_API_TOKEN || randomBytes(24).toString("hex");
   process.env.NODE_ENV = "test";
   process.env.MONGODB_URI_TEST = mongo.getUri();
   process.env.CORS_ORIGIN = "http://localhost:5173,http://127.0.0.1:5173";
@@ -57,6 +60,10 @@ try {
     "TEMPORARY DEMO: newly published stays and bookings are discarded when this process stops.",
   );
   console.log("Keep this terminal open. Press Ctrl+C to stop cleanly.\n");
+  if (!process.argv.includes("--check"))
+    console.log(
+      "Management access code (keep private): " + process.env.ADMIN_API_TOKEN,
+    );
   if (process.argv.includes("--check")) {
     const health = await fetch("http://localhost:5000/health").then((res) =>
       res.json(),

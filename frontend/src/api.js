@@ -13,6 +13,10 @@ export function createApi(
   fetcher = globalThis.fetch,
 ) {
   async function request(path, options = {}) {
+    const timeout = AbortSignal.timeout(15000);
+    const signal = options.signal
+      ? AbortSignal.any([options.signal, timeout])
+      : timeout;
     let response;
     try {
       response = await fetcher(`${base.replace(/\/$/, "")}${path}`, {
@@ -21,25 +25,46 @@ export function createApi(
           ...(options.body ? { "Content-Type": "application/json" } : {}),
           ...options.headers,
         },
-        signal: options.signal || AbortSignal.timeout(15000),
+        signal,
       });
+      const body = await response.json().catch((error) => {
+        if (signal.aborted) throw error;
+        return {};
+      });
+      if (!response.ok || !body.success)
+        throw new ApiError(response.status, body.error);
+      return { ...body, data: withPhotoAssets(body.data) };
     } catch (error) {
+      if (error instanceof ApiError) throw error;
+      if (options.signal?.aborted) throw options.signal.reason;
+      if (signal.aborted && signal.reason?.name === "TimeoutError")
+        throw new ApiError(0, {
+          code: "REQUEST_TIMEOUT",
+          message:
+            "The booking service took too long to respond. Please try again.",
+        });
       if (error.name === "AbortError") throw error;
       throw new ApiError(0, {
         message:
           "We could not reach the booking service. Please try again shortly.",
       });
     }
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok || !body.success)
-      throw new ApiError(response.status, body.error);
-    return { ...body, data: withPhotoAssets(body.data) };
   }
   const query = (params) =>
     new URLSearchParams(
       Object.entries(params).filter(([, v]) => v !== "" && v != null),
     ).toString();
   return {
+    managerBookings: (token, status = "Pending", page = 1) =>
+      request(`/api/admin/bookings?${query({ status, page, limit: 10 })}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    managerStatus: (token, id, bookingStatus) =>
+      request(`/api/admin/bookings/${encodeURIComponent(id)}/status`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ bookingStatus }),
+      }),
     listings: (page = 1, limit = 50, signal) =>
       request(`/api/listings?${query({ page, limit })}`, { signal }),
     createListing: (listing) =>

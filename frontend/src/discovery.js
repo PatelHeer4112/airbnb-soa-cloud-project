@@ -18,11 +18,13 @@ export async function fetchInventory(api, signal) {
 
 export function inventoryFacets(listings) {
   const destinations = new Map();
+  const countryKeys = new Set();
+  const keyFor = (value) => String(value).trim().toLowerCase();
   const types = new Set(),
     amenities = new Set(),
     countries = new Set();
   for (const listing of listings) {
-    const key = JSON.stringify([listing.city, listing.country]);
+    const key = JSON.stringify([keyFor(listing.city), keyFor(listing.country)]);
     const existing = destinations.get(key);
     if (existing) {
       existing.count++;
@@ -36,22 +38,81 @@ export function inventoryFacets(listings) {
         image: listing.imageUrls?.[0],
       });
     types.add(listing.propertyType);
-    countries.add(listing.country);
+    if (!countryKeys.has(keyFor(listing.country))) {
+      countries.add(listing.country);
+      countryKeys.add(keyFor(listing.country));
+    }
     for (const amenity of listing.amenities || []) amenities.add(amenity);
   }
   const alphabetical = (values) =>
     [...values].sort((a, b) => a.localeCompare(b));
+  const countryNames = new Map(
+    [...countries].map((country) => [keyFor(country), country]),
+  );
   return {
-    destinations: [...destinations.values()].sort(
-      (a, b) =>
-        b.count - a.count ||
-        a.city.localeCompare(b.city) ||
-        a.country.localeCompare(b.country),
-    ),
+    locations: listings.map((listing) => ({
+      city: listing.city,
+      country: countryNames.get(keyFor(listing.country)),
+      location: listing.location || "",
+      state: listing.state || "",
+    })),
+    destinations: [...destinations.values()]
+      .map((destination) => ({
+        ...destination,
+        country: countryNames.get(keyFor(destination.country)),
+      }))
+      .sort(
+        (a, b) =>
+          b.count - a.count ||
+          a.city.localeCompare(b.city) ||
+          a.country.localeCompare(b.country),
+      ),
     types: alphabetical(types),
     amenities: alphabetical(amenities),
     countries: alphabetical(countries),
   };
+}
+
+export function resolveDestination(text, facets, preferredCountry = "") {
+  const normalize = (value) =>
+    String(value || "")
+      .normalize("NFKD")
+      .replace(/\p{M}/gu, "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+  const query = normalize(text);
+  if (!query || !facets) return null;
+  const country = facets.countries.find((value) => normalize(value) === query);
+  if (country) return { city: "", country, location: country };
+  let matches = facets.destinations.filter(
+    (d) =>
+      normalize(d.city) === query ||
+      normalize(`${d.city}, ${d.country}`) === query,
+  );
+  if (matches.length > 1 && preferredCountry)
+    matches = matches.filter(
+      (d) => normalize(d.country) === normalize(preferredCountry),
+    );
+  if (matches.length === 1)
+    return {
+      city: matches[0].city,
+      country: matches[0].country,
+      location: matches[0].city,
+    };
+  if (matches.length > 1) return { ambiguous: true };
+  const areaCountries = [
+    ...new Set(
+      (facets.locations || [])
+        .filter((d) =>
+          [d.location, d.state].some((value) => normalize(value) === query),
+        )
+        .map((d) => d.country),
+    ),
+  ];
+  return areaCountries.length === 1
+    ? { city: "", country: areaCountries[0], location: text.trim() }
+    : null;
 }
 
 export function mountDiscovery({
@@ -68,6 +129,7 @@ export function mountDiscovery({
   );
   let expanded = false,
     facets;
+  let pending;
   const grid = root.querySelector("#destination-inventory");
   const options = root.querySelector(".amenity-options");
   function drawDestinations() {
@@ -132,7 +194,7 @@ export function mountDiscovery({
         facets.destinations
           .map(
             (d) =>
-              `<option value="${e(d.city)}">${e(d.country)} &middot; ${d.count} stays</option>`,
+              `<option value="${e(`${d.city}, ${d.country}`)}">${d.count} stays</option>`,
           )
           .join("");
       const selectedType =
@@ -177,9 +239,14 @@ export function mountDiscovery({
     }
   }
   root.querySelector("#refresh-inventory").onclick = () => {
-    refresh();
+    pending = refresh();
     onSearch();
   };
-  refresh();
-  return () => controller.abort();
+  pending = refresh();
+  const dispose = () => controller.abort();
+  dispose.resolveLocation = async (text, country) => {
+    await pending;
+    return resolveDestination(text, facets, country);
+  };
+  return dispose;
 }
