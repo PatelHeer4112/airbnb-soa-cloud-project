@@ -134,7 +134,7 @@ test("comparison limits selections and renders a real side-by-side shortlist", a
   ).toBe(true);
 });
 
-test("amenity filters use backend field names and restore after refresh", async ({
+test("amenity filters use backend field names and clear after homepage refresh", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -148,9 +148,11 @@ test("amenity filters use backend field names and restore after refresh", async 
   await request;
   await expect(page).toHaveURL(/amenities=Wi-Fi/);
   await page.reload({ waitUntil: "domcontentloaded" });
+  await page.getByText("Make room for your must-haves").click();
   await expect(
     page.getByRole("checkbox", { name: "Wi-Fi", exact: true }),
-  ).toBeChecked();
+  ).not.toBeChecked();
+  await expect(page).not.toHaveURL(/amenities=/);
 });
 
 test("calendar supports reserved-day checkout and blocks stays across occupied nights", async ({

@@ -147,7 +147,8 @@ test("publishing in a new city makes the stay discoverable and searchable withou
     page.getByRole("heading", { name: "Kyoto garden retreat", exact: true }),
   ).toBeVisible();
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByLabel("Country", { exact: true })).toHaveValue(
-    "Japan",
-  );
+  await expect(page.getByLabel("Country", { exact: true })).toHaveValue("");
+  await expect(
+    page.getByRole("button", { name: "Explore Kyoto, Japan", exact: true }),
+  ).toBeVisible();
 });

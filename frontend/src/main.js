@@ -31,6 +31,21 @@ let routeVersion = 0;
 let pendingSection;
 let disposeDiscovery;
 let searchController;
+let clearSearchOnHome = false;
+function clearSavedSearch() {
+  try {
+    sessionStorage.removeItem("stay-search");
+    sessionStorage.removeItem("stay-results");
+  } catch {}
+}
+// A homepage reload starts a new search; detail/booking reloads retain their URL.
+if (
+  performance.getEntriesByType("navigation")[0]?.type === "reload" &&
+  ["", "/"].includes(location.hash.slice(1).split("?")[0])
+) {
+  clearSavedSearch();
+  history.replaceState(null, "", "#/");
+}
 const price = (value) =>
   Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 });
 // The API has no currency field. Show its numeric prices without inventing a currency.
@@ -422,6 +437,11 @@ async function listing(id, version) {
         checkInDate: v.checkIn,
         checkOutDate: v.checkOut,
       });
+      clearSavedSearch();
+      clearSearchOnHome = true;
+      try {
+        sessionStorage.setItem("stay-search-completed", "1");
+      } catch {}
       if (version === routeVersion) location.hash = `/booking/${data._id}`;
     } catch (err) {
       if (version !== routeVersion) return;
@@ -519,6 +539,18 @@ async function route() {
   const [path] = location.hash.slice(1).split("?");
   try {
     if (!path || path === "/") {
+      let completed = clearSearchOnHome;
+      try {
+        completed ||= sessionStorage.getItem("stay-search-completed") === "1";
+      } catch {}
+      if (completed) {
+        clearSavedSearch();
+        history.replaceState(null, "", "#/");
+        clearSearchOnHome = false;
+        try {
+          sessionStorage.removeItem("stay-search-completed");
+        } catch {}
+      }
       home();
       if (pendingSection) {
         document.getElementById(pendingSection)?.scrollIntoView();

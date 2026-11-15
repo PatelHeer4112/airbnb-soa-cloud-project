@@ -117,6 +117,39 @@ test("search, inspect, check availability, book, reload, and cancel", async ({
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Until next time.",
   );
+  await page.getByRole("link", { name: "Explore more stays" }).click();
+  await expect(page.getByLabel("Where to?")).toHaveValue("");
+  await expect(page.getByLabel("Check-in", { exact: true })).toHaveValue("");
+  await expect(page.getByLabel("Country", { exact: true })).toHaveValue("");
+  await expect(page.locator('#search [name="guests"]')).toHaveValue("");
+  await expect(page.locator("#active-filters")).toBeEmpty();
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByLabel("Where to?")).toHaveValue("");
+});
+
+test("refreshing a filtered homepage clears the previous trip and all filters", async ({
+  page,
+}) => {
+  await page.goto(
+    "/#/?city=London&location=London&country=United+Kingdom&checkIn=2099-01-01&checkOut=2099-01-03&guests=2&minPrice=100&maxPrice=200&sort=price_desc&propertyType=Cottage&amenities=Wi-Fi",
+  );
+  await expect(page.getByLabel("Where to?")).toHaveValue("London");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page).not.toHaveURL(
+    /city=|location=|country=|checkIn=|guests=|minPrice=|amenities=/,
+  );
+  for (const name of ["city", "location", "checkIn", "checkOut", "guests"])
+    await expect(page.locator(`#search [name="${name}"]`)).toHaveValue("");
+  for (const name of ["country", "minPrice", "maxPrice"])
+    await expect(page.locator(`#filters [name="${name}"]`)).toHaveValue("");
+  await expect(page.locator('#filters [name="sort"]')).toHaveValue("newest");
+  await expect(
+    page.locator('[name="amenity"][value="Wi-Fi"]'),
+  ).not.toBeChecked();
+  await expect(
+    page.getByRole("button", { name: "All stays", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#active-filters")).toBeEmpty();
 });
 test("empty results and unavailable service provide recovery", async ({
   page,

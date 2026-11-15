@@ -38,7 +38,7 @@ Open http://localhost:5173. On macOS/Linux use `npm` instead of `npm.cmd`. The `
 - Live price estimate, field validation feedback, offline notice, and return to the previous search results.
 - Loading, empty, unavailable image, network failure, validation, and booking conflict states. Keyboard navigation, labelled inputs, skip link, live status regions, and responsive layouts.
 
-URLs use hash routing, so static hosts need no SPA rewrite rules. Search filters persist in the URL; selected dates and guest count carry into the booking form in the current browser tab. Booking references and guest details are not saved in browser storage.
+URLs use hash routing, so static hosts need no SPA rewrite rules. Search filters use the URL while browsing and returning from property details; selected dates and guest count carry into the booking form in the current browser tab. A homepage reload starts a clean search. Successful booking clears saved search context, and returning home resets destination, dates, guests and filters; refreshing a booking page still retrieves its actual booking. Booking references and guest details are not saved in browser storage.
 
 ## Check and build
 
@@ -81,7 +81,7 @@ The backend protects management and booking confirmation with a private manager 
 
 Validation on 13-14 November 2026: 15 unit/API tests and 16 browser tests passed, covering booking, collections, comparison limits, amenities, calendar boundaries, photo viewing, itinerary export, responsive layouts, and automated WCAG checks on the principal screens. The `e2e/` suite uses mocked API responses. The separate live-integration check below also passed with Member 1's real backend and isolated MongoDB. AWS deployment and cloud-load measurements remain Member 3's work.
 
-1. Browse and paginate the seeded stays; search London and combine a property type, guests, prices and sort. Refresh and confirm filters persist.
+1. Browse and paginate the seeded stays; search London and combine a property type, guests, prices and sort. Refresh and confirm destination, dates, guests and filters clear.
 2. Try no matching destination, a stopped API, and retry after restoring it.
 3. Open a listing, inspect amenities and reserved ranges, choose valid dates and check availability.
 4. Try missing email, excess guests, past dates, reversed dates, and a stay over 30 nights.
@@ -142,7 +142,7 @@ Saved stays are local to one browser. Account sync, sign-in, payments, email del
 3. Expand Explore all destinations. Search any city, country or area in the inventory, or type a different place to see the empty state. Combine Country, guests, date range, property type, price, amenities and sort.
 4. Select List your space. Publish a sample property in a new city, such as Kyoto, Japan, with a title, description, neighbourhood, nightly rate 95, two guests, one bedroom, one bathroom, and amenities `Wi-Fi, Sauna`. Photos are optional. Confirm permission to publish the sample data.
 5. Inspect `POST /api/listings`: expect 201 and an actual listing ID. Check the detail page matches the response. Return home and expand all destinations. The new city, country and Sauna option should appear without code changes. If another person added the stay while your homepage was open, use Refresh places.
-6. Click the new destination and verify `city=Kyoto` and `country=Japan` in the search request. Refresh the browser to confirm the filters and property remain. Only expect destinations where properties exist; the backend is a listing inventory, not a worldwide geography service.
+6. Click the new destination and verify `city=Kyoto` and `country=Japan` in the search request. Refresh the browser: the search resets, while the published property remains in inventory. Only expect destinations where properties exist; the backend is a listing inventory, not a worldwide geography service.
 7. Choose future dates, check availability and book. A two-night stay at 95 should return a server total of 190 and Pending status. Save the reference, reload, and look it up again. Try overlapping dates: expect 409. Cancel and confirm availability returns.
 8. Test saved stays, a three-property comparison, photo viewer, printing and calendar download. Test missing fields, reversed dates, over 30 nights, excessive guests, no matches and an unavailable backend.
 9. Check mobile navigation and layouts at 320, 390, 768 and 1440 pixels. Use Tab/Enter/Escape for keyboard checks. The new publishing form should fit the screen too.
