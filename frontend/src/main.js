@@ -101,7 +101,7 @@ function home() {
   <form id="search" class="search-bar" aria-label="Search accommodations"><input type="hidden" name="city" value="${e(filters.get("city") || "")}"><datalist id="destination-suggestions"></datalist>${input("Where to?", "location", "search", `list="destination-suggestions" autocomplete="off" maxlength="100" placeholder="Anywhere: city, region, country" value="${e(filters.get("location") || "")}"`)}${input("Check-in", "checkIn", "date", `min="${today()}" value="${e(filters.get("checkIn") || "")}"`)}${input("Check-out", "checkOut", "date", `min="${today()}" value="${e(filters.get("checkOut") || "")}"`)}${input("Who’s coming?", "guests", "number", `min="1" max="20" placeholder="Add guests" value="${e(filters.get("guests") || "")}"`)}<button class="primary" type="submit">${icon("search")} Search stays</button></form>
   <section class="journey-strip content-width" aria-label="Plan your stay"><div>${icon("search")}<span><strong>Find your kind of place</strong><small>Search by destination, dates, and comforts.</small></span></div><div>${icon("heart")}<span><strong>Keep the ones you love</strong><small>Save favourites and compare the details.</small></span></div><div>${icon("calendar")}<span><strong>Make it a date</strong><small>Check availability and request your stay.</small></span></div></section><section id="getaways" class="destinations content-width"><div class="section-heading"><div><span class="eyebrow">A LITTLE INSPIRATION FOR YOUR NEXT TRIP</span><h2>Explore destinations</h2></div><p>Real places from the current listing inventory.</p></div><div class="discovery-controls"><p id="inventory-summary" role="status">Loading places from the API...</p><button type="button" class="secondary" id="refresh-inventory">Refresh places</button></div><div class="destination-grid" id="destination-inventory"><p>Discovering destinations...</p></div><button class="secondary more-destinations" id="more-destinations" type="button" hidden>Explore all destinations</button></section>
   <section id="stays" class="collection"><div class="section-heading"><div><span class="eyebrow">A PLACE FOR EVERY KIND OF TRAVELLER</span><h2>Find a place to call your own.</h2></div><p>Your dates. Your people. Your perfect escape.</p></div><div class="category-row" role="group" aria-label="Property type"><button type="button" data-type="" class="category">${icon("grid")} <span>All stays</span></button></div>
-  <form id="filters" class="filters" aria-label="Filter accommodations"><label>Country<select name="country" aria-label="Country"><option value="">All countries</option>${filters.get("country") ? `<option selected>${e(filters.get("country"))}</option>` : ""}</select></label>${input("Min. nightly price", "minPrice", "number", `min="0" placeholder="Any" value="${e(filters.get("minPrice") || "")}"`)}${input("Max. nightly price", "maxPrice", "number", `min="0" placeholder="Any" value="${e(filters.get("maxPrice") || "")}"`)}<label>Sort by<select name="sort"><option value="newest">Newest stays</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="rating_desc">Top rated</option></select></label><button class="secondary">Apply filters</button><button class="plain" type="button" id="reset">Clear all</button></form><p id="price-guidance" class="price-note" role="status"></p><details class="amenity-filters" ${filters.get("amenities") ? "open" : ""}><summary>${icon("compare")} Make room for your must-haves <span id="amenity-count"></span></summary><div class="amenity-options">${(
+  <form id="filters" class="filters" aria-label="Filter accommodations"><label>Country<select name="country" aria-label="Country"><option value="">All countries</option>${filters.get("country") ? `<option selected>${e(filters.get("country"))}</option>` : ""}</select></label>${input("Min. nightly price", "minPrice", "number", `min="0" step="0.01" placeholder="Any" value="${e(filters.get("minPrice") || "")}"`)}${input("Max. nightly price", "maxPrice", "number", `min="0" step="0.01" placeholder="Any" value="${e(filters.get("maxPrice") || "")}"`)}<label>Sort by<select name="sort"><option value="newest">Newest stays</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="rating_desc">Top rated</option></select></label><button class="secondary">Apply filters</button><button class="plain" type="button" id="reset">Clear all</button></form><p id="price-guidance" class="price-note" role="status"></p><details class="amenity-filters" ${filters.get("amenities") ? "open" : ""}><summary>${icon("compare")} Make room for your must-haves <span id="amenity-count"></span></summary><div class="amenity-options">${(
     filters.get("amenities") || ""
   )
     .split(",")
@@ -122,16 +122,24 @@ function home() {
   document.querySelector('[name="sort"]').value =
     filters.get("sort") || "newest";
   let propertyType = filters.get("propertyType") || "";
+  let searchUpdateVersion = 0;
   let automaticCountry = Boolean(filters.get("city") && filters.get("country"));
   const homeRoot = document.querySelector("#discovery-page");
   const update = async (inferCountry = false) => {
+    const updateVersion = ++searchUpdateVersion;
     if (inferCountry) {
       const locationInput = homeRoot.querySelector('#search [name="location"]');
+      const submittedLocation = locationInput.value;
       const destination = await disposeDiscovery.resolveLocation(
         locationInput.value,
         homeRoot.querySelector('[name="country"]').value,
       );
-      if (!homeRoot.isConnected) return;
+      if (
+        !homeRoot.isConnected ||
+        updateVersion !== searchUpdateVersion ||
+        locationInput.value !== submittedLocation
+      )
+        return;
       if (destination && !destination.ambiguous) {
         locationInput.value = destination.location;
         homeRoot.querySelector('#search [name="city"]').value =
@@ -181,6 +189,7 @@ function home() {
       update(form.id === "search");
     };
   document.querySelector('#search [name="location"]').oninput = () => {
+    searchUpdateVersion++;
     document.querySelector('#search [name="city"]').value = "";
     if (automaticCountry) document.querySelector('[name="country"]').value = "";
     automaticCountry = false;

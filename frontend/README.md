@@ -173,6 +173,14 @@ The first command uses the public Unsplash image URLs recorded in the script and
 
 ## Integration bug regressions
 
+The 2026-11-15 audit added `e2e/audit-regressions.spec.js`: searches awaiting inventory overwrote newer input; decimal nightly-price filters were blocked by browser validation; repeated calendar mounts accumulated date-change listeners. All three tests reproduced failures before their fixes. Listing creation also now rejects non-finite numeric fields and prices outside safe 30-night monetary arithmetic; booking rejects unsafe legacy/imported rates before reserving nights.
+
+Final local checks passed: 22 frontend unit tests, 29 Chromium browser tests including automated accessibility checks, production build, formatting, and 124 backend tests with 96.61% line coverage. Backend production-dependency audit reported zero known vulnerabilities at audit time; this does not establish production security.
+
+Compatibility: 12 HTTP contract checks passed against each of Member 1's original `512b4a8` backend and the integrated backend. Real Chromium + temporary MongoDB workflows passed for publishing, discovery, search, availability, booking persistence, overlap rejection, cancellation, date release and concurrent booking conflicts on both. Manager authorization, approval and decline passed on the integrated backend; the original Member 1 branch lacks these endpoints. Use current main/integration for the full website.
+
+Reproduce guest compatibility with `node scripts/check-live-integration.mjs <member1-backend-directory> --guest-only`. Omit `--guest-only` for the full integrated manager workflow. Both modes create and discard isolated databases without touching your running demo or normal database.
+
 Filter recovery: the price hint shows current destination listing rates before availability and other filters. For Barcelona's sample inventory these are 150–420, so 10000–20000 correctly returns no matches. Use Remove price limits to preserve destination, dates, guests and other selections while removing the price restriction. Changing the Country dropdown intentionally clears the previous city/free-text destination to prevent contradictory searches. Duplicate city/location filter chips are collapsed. `e2e/filter-recovery.spec.js` verifies these behaviours and an actual matching price range.
 
 `tests/bug-regressions.test.js` covers request timeout/cancellation composition and case-insensitive destination grouping. `e2e/bug-regressions.spec.js` covers keyboard skip navigation, editing an automatically selected destination, returning to the correct results page, responsive-image fallback loading, and removing deleted saved properties while retaining selections during temporary service failures. These tests initially reproduced the defects before the fixes.

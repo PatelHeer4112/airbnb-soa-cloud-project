@@ -5,8 +5,12 @@ export const reservedNight = (day, ranges) =>
   ranges.some((range) => day >= range.checkInDate && day < range.checkOutDate);
 export const overlapsStay = (start, end, ranges) =>
   ranges.some((range) => start < range.checkOutDate && end > range.checkInDate);
+const calendarBindings = new WeakMap();
 
 export function mountCalendar(target, ranges, form) {
+  calendarBindings.get(target)?.abort();
+  const bindings = new AbortController();
+  calendarBindings.set(target, bindings);
   const initial = form.elements.checkIn.value || today();
   let month = new Date(`${initial.slice(0, 7)}-01T00:00:00Z`);
   const minimum = today().slice(0, 7);
@@ -88,7 +92,11 @@ export function mountCalendar(target, ranges, form) {
     if (start) month = new Date(`${start.slice(0, 7)}-01T00:00:00Z`);
     draw();
   };
-  form.elements.checkIn.addEventListener("change", sync);
-  form.elements.checkOut.addEventListener("change", sync);
+  form.elements.checkIn.addEventListener("change", sync, {
+    signal: bindings.signal,
+  });
+  form.elements.checkOut.addEventListener("change", sync, {
+    signal: bindings.signal,
+  });
   draw();
 }

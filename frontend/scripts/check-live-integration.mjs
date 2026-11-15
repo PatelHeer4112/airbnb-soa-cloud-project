@@ -14,6 +14,7 @@ if (!process.argv[2])
     "Usage: node scripts/check-live-integration.mjs <backend-directory>",
   );
 const backend = resolve(process.argv[2]);
+const guestOnly = process.argv.includes("--guest-only");
 const backendRequire = createRequire(join(backend, "package.json"));
 const { MongoMemoryServer } = backendRequire("mongodb-memory-server");
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -149,57 +150,64 @@ try {
     (error) => error.status === 409 && error.code === "BOOKING_CONFLICT",
   );
   console.log("PASS real overlapping booking rejected with HTTP 409");
-  const unauthorized = await fetch(`${base}/api/bookings/${id}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bookingStatus: "Confirmed" }),
-  });
-  assert.equal(unauthorized.status, 401);
-  const manager = await browser.newPage();
-  await manager.goto("http://127.0.0.1:5179/#/manage", {
-    waitUntil: "domcontentloaded",
-  });
-  await manager
-    .getByLabel("Management access code")
-    .fill(process.env.ADMIN_API_TOKEN);
-  await manager.getByRole("button", { name: "Open booking manager" }).click();
-  await manager
-    .getByRole("button", { name: "Accept request", exact: true })
-    .click();
-  await manager.getByRole("button", { name: "Confirm decision" }).click();
-  await manager
-    .getByRole("heading", { name: "No bookings in this view." })
-    .waitFor();
-  assert.equal((await Booking.findById(id).lean()).bookingStatus, "Confirmed");
-  const declined = (
-    await api.book({
-      ...draft,
-      checkInDate: shift(12),
-      checkOutDate: shift(14),
-    })
-  ).data;
-  await manager.getByRole("button", { name: "Refresh requests" }).click();
-  await manager
-    .getByRole("button", { name: "Decline request", exact: true })
-    .click();
-  await manager.getByRole("button", { name: "Confirm decision" }).click();
-  await manager
-    .getByRole("heading", { name: "No bookings in this view." })
-    .waitFor();
-  assert.equal(
-    (await Booking.findById(declined._id).lean()).bookingStatus,
-    "Cancelled",
-  );
-  assert.equal(
-    await BookedNight.countDocuments({ bookingId: declined._id }),
-    0,
-  );
-  await manager.close();
-  console.log(
-    "PASS protected manager approval and decline, with actual MongoDB updates and released nights",
-  );
+  if (!guestOnly) {
+    const unauthorized = await fetch(`${base}/api/bookings/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookingStatus: "Confirmed" }),
+    });
+    assert.equal(unauthorized.status, 401);
+    const manager = await browser.newPage();
+    await manager.goto("http://127.0.0.1:5179/#/manage", {
+      waitUntil: "domcontentloaded",
+    });
+    await manager
+      .getByLabel("Management access code")
+      .fill(process.env.ADMIN_API_TOKEN);
+    await manager.getByRole("button", { name: "Open booking manager" }).click();
+    await manager
+      .getByRole("button", { name: "Accept request", exact: true })
+      .click();
+    await manager.getByRole("button", { name: "Confirm decision" }).click();
+    await manager
+      .getByRole("heading", { name: "No bookings in this view." })
+      .waitFor();
+    assert.equal(
+      (await Booking.findById(id).lean()).bookingStatus,
+      "Confirmed",
+    );
+    const declined = (
+      await api.book({
+        ...draft,
+        checkInDate: shift(12),
+        checkOutDate: shift(14),
+      })
+    ).data;
+    await manager.getByRole("button", { name: "Refresh requests" }).click();
+    await manager
+      .getByRole("button", { name: "Decline request", exact: true })
+      .click();
+    await manager.getByRole("button", { name: "Confirm decision" }).click();
+    await manager
+      .getByRole("heading", { name: "No bookings in this view." })
+      .waitFor();
+    assert.equal(
+      (await Booking.findById(declined._id).lean()).bookingStatus,
+      "Cancelled",
+    );
+    assert.equal(
+      await BookedNight.countDocuments({ bookingId: declined._id }),
+      0,
+    );
+    await manager.close();
+    console.log(
+      "PASS protected manager approval and decline, with actual MongoDB updates and released nights",
+    );
+  }
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.getByText("Confirmed", { exact: true }).waitFor();
+  await page
+    .getByText(guestOnly ? "Pending" : "Confirmed", { exact: true })
+    .waitFor();
   await page.getByRole("button", { name: "Cancel this booking" }).click();
   await page.getByRole("button", { name: "Yes, cancel booking" }).click();
   await page.getByRole("heading", { name: "Until next time." }).waitFor();
