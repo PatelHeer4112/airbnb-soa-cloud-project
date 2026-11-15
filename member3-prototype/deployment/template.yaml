@@ -1,0 +1,160 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Airbnb SOA Cloud Project - Member 3 AWS Deployment
+
+Globals:
+  Function:
+    Runtime: python3.13
+    CodeUri: src/
+    Timeout: 10
+    MemorySize: 128
+    Environment:
+      Variables:
+        BOOKINGS_TABLE: !Ref BookingsTable
+        RESERVATIONS_TABLE: !Ref ReservationsTable
+
+Resources:
+
+  # API Gateway
+  AirbnbHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+
+  # Health Lambda
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.health_handler
+      Events:
+        HealthRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AirbnbHttpApi
+            Path: /health
+            Method: GET
+
+  # Listing Lambda
+  ListingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.listings_handler
+      Events:
+        GetListings:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AirbnbHttpApi
+            Path: /listings
+            Method: GET
+        GetSingleListing:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AirbnbHttpApi
+            Path: /listings/{listing_id}
+            Method: GET
+
+  # Search Lambda
+  SearchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.search_handler
+      Events:
+        SearchRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AirbnbHttpApi
+            Path: /search
+            Method: GET
+
+  # Availability Lambda
+  AvailabilityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.availability_handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:BatchGetItem
+              Resource: !GetAtt ReservationsTable.Arn
+      Events:
+        AvailabilityRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AirbnbHttpApi
+            Path: /availability
+            Method: GET
+
+  # Booking Lambda
+  BookingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.booking_handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:TransactWriteItems
+              Resource:
+                - !GetAtt BookingsTable.Arn
+                - !GetAtt ReservationsTable.Arn
+      Events:
+        BookingRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AirbnbHttpApi
+            Path: /bookings
+            Method: POST
+
+  # DynamoDB: Booking records
+  BookingsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: booking_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: booking_id
+          KeyType: HASH
+
+  # DynamoDB: Nightly reservation locks
+  ReservationsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: reservation_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: reservation_id
+          KeyType: HASH
+
+Outputs:
+  ApiBaseUrl:
+    Description: API Gateway HTTP API endpoint
+    Value: !Sub
+      - 'https://${ApiId}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
+      - ApiId: !Ref AirbnbHttpApi
+
+  BookingsTableName:
+    Description: DynamoDB bookings table
+    Value: !Ref BookingsTable
+
+  ReservationsTableName:
+    Description: DynamoDB reservations table
+    Value: !Ref ReservationsTable

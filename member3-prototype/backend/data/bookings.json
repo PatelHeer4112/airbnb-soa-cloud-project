@@ -1,0 +1,18 @@
+[
+    {
+        "booking_id": "2e2710f8-73b2-4f3c-8744-495d491af326",
+        "listing_id": 2,
+        "guest_name": "Test Guest",
+        "check_in": "2026-11-20",
+        "check_out": "2026-11-22",
+        "status": "confirmed"
+    },
+    {
+        "booking_id": "c2593b67-f678-4615-bd50-a0d3ba6def16",
+        "listing_id": 1,
+        "guest_name": "Test Guest 2",
+        "check_in": "2026-11-20",
+        "check_out": "2026-11-22",
+        "status": "confirmed"
+    }
+]
