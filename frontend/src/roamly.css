@@ -69,24 +69,26 @@ header nav .nav-booking:hover {
   color: #a81737;
 }
 .hero {
-  min-height: 0;
-  padding: 40px 5% 23px;
-  background: #fff;
+  min-height: 620px;
+  padding: 110px 5% 130px;
+  background:
+    linear-gradient(180deg, #14213880, #13283f69 45%, #152437b8),
+    url("/images/blog2.jpg") center 55% / cover;
 }
 .hero-copy {
   max-width: 900px;
-  color: #222;
+  color: #fff;
 }
 .hero-copy .eyebrow {
   border: 0;
   padding: 0;
-  color: #717171;
+  color: #fff;
   background: none;
   font-size: 10px;
   letter-spacing: 2px;
 }
 .hero h1 {
-  font-size: clamp(32px, 3.2vw, 48px);
+  font-size: clamp(40px, 5vw, 70px);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -1.8px;
@@ -94,21 +96,21 @@ header nav .nav-booking:hover {
 }
 .hero h1 em {
   font-family: inherit;
-  color: var(--accent);
+  color: #ffe1d9;
   font-style: normal;
 }
 .hero-copy p {
-  color: #6a6a6a;
+  color: #fff;
   font-size: 15px;
   margin: 0;
 }
 .hero-copy .text-link {
-  color: #222;
+  color: #fff;
   font-size: 12px;
   margin-top: 14px;
 }
 .hero-copy .text-link span {
-  color: var(--accent);
+  color: #fff;
 }
 .hero-footnote {
   display: none;
@@ -116,7 +118,7 @@ header nav .nav-booking:hover {
 .search-bar {
   width: 88%;
   max-width: 1000px;
-  margin: 0 auto;
+  margin: -42px auto 0;
   border: 1px solid #ddd;
   border-radius: 48px;
   padding: 12px 12px 12px 28px;
@@ -387,7 +389,8 @@ a:focus-visible {
     border-bottom: 1px solid var(--line);
   }
   .hero {
-    padding: 30px 5% 22px;
+    min-height: 470px;
+    padding: 80px 5% 100px;
   }
   .hero h1 {
     font-size: 34px;
