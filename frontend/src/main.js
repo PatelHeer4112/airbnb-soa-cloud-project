@@ -1,7 +1,7 @@
 import "./style.css";
 import "./airbnb.css";
 import "./experience.css";
-import "./roamly.css";
+import "./havenstay.css";
 import { icon } from "./icons.js";
 import {
   stayCard,

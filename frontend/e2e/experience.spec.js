@@ -151,7 +151,7 @@ for (const width of [320, 1440])
       await page.getByRole("button", { name: "Open navigation" }).click();
     await page.getByRole("link", { name: "Find a booking" }).click();
     await expect(page.locator("#compare-rail")).toBeHidden();
-    await page.getByRole("link", { name: "Roamly home" }).click();
+    await page.getByRole("link", { name: "HavenStay home" }).click();
     await expect(page.locator("#compare-rail")).toBeVisible();
     await page.route("**/api/search?**", (route) =>
       route.fulfill({

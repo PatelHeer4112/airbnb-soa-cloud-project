@@ -222,7 +222,7 @@ test("booking conflict keeps guest input and explains the failure", async ({
   ).toBeEnabled();
 });
 
-test("Roamly navigation and destination cards work on mobile", async ({
+test("HavenStay navigation and destination cards work on mobile", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });

@@ -1,4 +1,4 @@
-/* Roamly: a compact, photo-led accommodation marketplace. */
+/* HavenStay: a compact, photo-led accommodation marketplace. */
 :root {
   font-family: "DM Sans", system-ui, sans-serif;
   --accent: #e52249;
@@ -36,7 +36,7 @@ header .brand {
   width: auto;
   flex-wrap: nowrap;
   gap: 9px;
-  font-size: 31px;
+  font-size: 27px;
   letter-spacing: -1.5px;
 }
 .brand-mark {
@@ -354,7 +354,7 @@ a:focus-visible {
     font-size: 11px;
   }
   header .brand {
-    font-size: 27px;
+    font-size: 24px;
   }
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
