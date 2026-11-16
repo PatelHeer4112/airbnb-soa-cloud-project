@@ -9,10 +9,10 @@ export function calendarEvent(booking, url) {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Airbnb student project//Stay itinerary//EN",
+    "PRODID:-//Roamly//Stay itinerary//EN",
     "CALSCALE:GREGORIAN",
     "BEGIN:VEVENT",
-    `UID:${clean(booking._id)}@airbnb-student-project`,
+    `UID:${clean(booking._id)}@roamly-stays`,
     `DTSTAMP:${new Date()
       .toISOString()
       .replace(/[-:]/g, "")
