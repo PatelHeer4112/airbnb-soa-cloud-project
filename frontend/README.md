@@ -1,3 +1,5 @@
+> Option B update: the production container uses a same-origin API (VITE_API_URL=/). The booking form sends a stable request key and performs bounded safe retries. Use the current main backend for transactions, idempotency and manager operations; the original Member 1 branch lacks the new idempotency/CORS capability. See the [Option B setup](https://github.com/PatelHeer4112/airbnb-soa-cloud-project/blob/main/DOCKER_SETUP.md).
+
 # Frontend — Member 2
 
 Responsive Airbnb accommodation UI, built with JavaScript, CSS, and Vite. Uses the existing backend APIs; no mock bookings or fallback listing data are shown in the application.

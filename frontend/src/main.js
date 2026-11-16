@@ -13,6 +13,7 @@ import {
 import { mountCalendar } from "./calendar.js";
 import { downloadItinerary } from "./itinerary.js";
 import { createApi } from "./api.js";
+import { bookingRequestKey } from "./bookingIntent.js";
 import { mountDiscovery } from "./discovery.js";
 import { hostPage } from "./host.js";
 import { managementPage } from "./management.js";
@@ -438,14 +439,18 @@ async function listing(id, version) {
     button.textContent = "Sending your request…";
     target.innerHTML = "";
     try {
-      const { data } = await api.book({
+      const payload = {
         listingId: id,
         guestName: v.guestName.trim(),
         guestEmail: v.guestEmail.trim(),
         numberOfGuests: Number(v.numberOfGuests),
         checkInDate: v.checkIn,
         checkOutDate: v.checkOut,
-      });
+      };
+      const { data } = await api.book(
+        payload,
+        await bookingRequestKey(payload),
+      );
       clearSavedSearch();
       clearSearchOnHome = true;
       try {

@@ -11,9 +11,13 @@ const backend = resolve(process.argv[2]);
 const requireBackend = createRequire(join(backend, "package.json"));
 let mongo, db, server;
 try {
-  const { MongoMemoryServer } = requireBackend("mongodb-memory-server");
-  mongo = await MongoMemoryServer.create({
-    instance: { dbName: "airbnb_manual_demo_test" },
+  const { MongoMemoryReplSet } = requireBackend("mongodb-memory-server");
+  mongo = await MongoMemoryReplSet.create({
+    replSet: {
+      count: 1,
+      storageEngine: "wiredTiger",
+      dbName: "airbnb_manual_demo_test",
+    },
   });
   process.env.ADMIN_API_TOKEN =
     process.env.ADMIN_API_TOKEN || randomBytes(24).toString("hex");

@@ -16,12 +16,16 @@ if (!process.argv[2])
 const backend = resolve(process.argv[2]);
 const guestOnly = process.argv.includes("--guest-only");
 const backendRequire = createRequire(join(backend, "package.json"));
-const { MongoMemoryServer } = backendRequire("mongodb-memory-server");
+const { MongoMemoryReplSet } = backendRequire("mongodb-memory-server");
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 let mongo, db, server, vite, browser;
 try {
-  mongo = await MongoMemoryServer.create({
-    instance: { dbName: "airbnb_frontend_integration_test" },
+  mongo = await MongoMemoryReplSet.create({
+    replSet: {
+      count: 1,
+      storageEngine: "wiredTiger",
+      dbName: "airbnb_frontend_integration_test",
+    },
   });
   process.env.ADMIN_API_TOKEN = randomBytes(24).toString("hex");
   process.env.NODE_ENV = "test";
